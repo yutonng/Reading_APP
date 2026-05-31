@@ -1,0 +1,28 @@
+{
+  "expo": {
+    "name": "Reading APP",
+    "slug": "reading-app",
+    "scheme": "readingapp",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "android": {
+      "package": "com.yutong.readingapp",
+      "versionCode": 1,
+      "usesCleartextTraffic": true
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single"
+    },
+    "plugins": [
+      "expo-router"
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "41c8335a-3c5e-43ca-86ad-5bda795da491"
+      }
+    }
+  }
+}
