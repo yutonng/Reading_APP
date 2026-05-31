@@ -1,16 +1,23 @@
 const app = document.querySelector("#app");
 
 let books = [];
-let route = { name: "list" };
+let route = window.location.pathname === "/admin" ? { name: "admin" } : { name: "list" };
 let adminDraft = emptyDraft();
 let adminMessage = "";
 let previewBook = null;
 let toastTimer = null;
+let isAdminAuthenticated = false;
 
 async function loadBooks() {
   const response = await fetch("/books");
   const payload = await response.json();
   books = payload.books;
+}
+
+async function loadSession() {
+  const response = await fetch("/auth/session");
+  const payload = await response.json();
+  isAdminAuthenticated = Boolean(payload.authenticated);
 }
 
 function setRoute(nextRoute) {
@@ -142,7 +149,7 @@ function renderList() {
       <header class="bar">
         <button class="icon-btn" id="home-back" title="返回">${icon("‹")}</button>
         <h1>首页</h1>
-        <button class="icon-btn" id="admin" title="后台上传">${icon("✎")}</button>
+        <span class="bar-spacer"></span>
       </header>
       ${
         lastRead
@@ -186,7 +193,6 @@ function renderList() {
     </section>
   `;
 
-  document.querySelector("#admin").addEventListener("click", () => setRoute({ name: "admin" }));
   document.querySelector("#home-back").addEventListener("click", () => {
     if (window.history.length > 1) {
       window.history.back();
@@ -205,6 +211,55 @@ function renderList() {
       const progress = book ? getBookProgress(book) : { page: 0 };
       setRoute({ name: "reader", id: node.getAttribute("data-book-id"), page: progress.page });
     });
+  });
+}
+
+function renderLogin() {
+  app.innerHTML = `
+    <section class="shell">
+      <header class="bar">
+        <button class="icon-btn" id="back" title="返回">${icon("‹")}</button>
+        <h1>后台登录</h1>
+        <span class="bar-spacer"></span>
+      </header>
+      <form class="login-panel" id="login-form">
+        <div class="field">
+          <label for="username">账号</label>
+          <input id="username" name="username" autocomplete="username" placeholder="输入账号" required />
+        </div>
+        <div class="field">
+          <label for="password">密码</label>
+          <input id="password" name="password" autocomplete="current-password" type="password" placeholder="输入密码" required />
+        </div>
+        <button class="save" type="submit">登录</button>
+        <p class="message error" id="login-message"></p>
+      </form>
+    </section>
+  `;
+
+  document.querySelector("#back").addEventListener("click", () => {
+    window.location.href = "/";
+  });
+
+  document.querySelector("#login-form").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const data = Object.fromEntries(new FormData(event.currentTarget).entries());
+    const message = document.querySelector("#login-message");
+    const response = await fetch("/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
+
+    if (!response.ok) {
+      const payload = await response.json().catch(() => ({}));
+      message.textContent = payload.error || "登录失败。";
+      return;
+    }
+
+    isAdminAuthenticated = true;
+    adminMessage = "";
+    renderAdmin();
   });
 }
 
@@ -295,6 +350,11 @@ function renderReader() {
 }
 
 function renderAdmin() {
+  if (!isAdminAuthenticated) {
+    renderLogin();
+    return;
+  }
+
   const isEditing = Boolean(adminDraft.id);
   const pageCount = countPages(adminDraft.content);
 
@@ -366,7 +426,9 @@ function renderAdmin() {
   const content = document.querySelector("#content");
   const pageCountNode = document.querySelector("#page-count");
 
-  document.querySelector("#back").addEventListener("click", () => setRoute({ name: "list" }));
+  document.querySelector("#back").addEventListener("click", () => {
+    window.location.href = "/";
+  });
   document.querySelector("#new-book").addEventListener("click", () => {
     adminDraft = emptyDraft();
     adminMessage = "";
@@ -395,6 +457,11 @@ function renderAdmin() {
       });
 
       if (!response.ok) {
+        if (response.status === 401) {
+          isAdminAuthenticated = false;
+          renderLogin();
+          return;
+        }
         alert("删除失败。");
         return;
       }
@@ -444,6 +511,11 @@ function renderAdmin() {
 
     if (!response.ok) {
       const payload = await response.json();
+      if (response.status === 401) {
+        isAdminAuthenticated = false;
+        renderLogin();
+        return;
+      }
       message.textContent = payload.error || "保存失败。";
       return;
     }
@@ -482,4 +554,4 @@ function escapeAttribute(value) {
   return escapeHtml(value).replaceAll("\n", "&#10;");
 }
 
-loadBooks().then(render);
+Promise.all([loadBooks(), loadSession()]).then(render);

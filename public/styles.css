@@ -267,6 +267,17 @@ textarea {
   gap: 16px;
 }
 
+.login-panel {
+  width: min(420px, calc(100% - 32px));
+  margin: 42px auto 0;
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
 .manager {
   width: min(1080px, 100%);
   margin: 0 auto;
@@ -418,6 +429,10 @@ textarea {
 
 .message {
   color: #166534;
+}
+
+.message.error {
+  color: #991b1b;
 }
 
 .empty {

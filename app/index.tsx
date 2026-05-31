@@ -4,7 +4,6 @@ import { useCallback, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
-  Modal,
   Pressable,
   SafeAreaView,
   StyleSheet,
@@ -18,7 +17,6 @@ import type { Book } from "@/types/book";
 export default function BookListScreen() {
   const [books, setBooks] = useState<Book[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isPickerOpen, setIsPickerOpen] = useState(false);
 
   const refresh = useCallback(async () => {
     setIsLoading(true);
@@ -35,15 +33,11 @@ export default function BookListScreen() {
   return (
     <SafeAreaView style={styles.screen}>
       <View style={styles.header}>
-        <Pressable style={styles.iconButton} onPress={() => setIsPickerOpen(true)}>
-          <Ionicons name="library-outline" size={22} color="#111827" />
+        <Pressable style={styles.iconButton}>
+          <Ionicons name="chevron-back" size={24} color="#111827" />
         </Pressable>
-        <Text style={styles.title}>选书</Text>
-        <Link href="/admin" asChild>
-          <Pressable style={styles.iconButton}>
-            <Ionicons name="create-outline" size={22} color="#111827" />
-          </Pressable>
-        </Link>
+        <Text style={styles.title}>首页</Text>
+        <View style={styles.iconButton} />
       </View>
 
       {isLoading ? (
@@ -58,24 +52,6 @@ export default function BookListScreen() {
           renderItem={({ item }) => <BookRow book={item} />}
         />
       )}
-
-      <Modal visible={isPickerOpen} animationType="slide" presentationStyle="pageSheet">
-        <SafeAreaView style={styles.modalScreen}>
-          <View style={styles.header}>
-            <Pressable style={styles.iconButton} onPress={() => setIsPickerOpen(false)}>
-              <Ionicons name="close" size={22} color="#111827" />
-            </Pressable>
-            <Text style={styles.title}>选择一本书</Text>
-            <View style={styles.iconButton} />
-          </View>
-          <FlatList
-            data={books}
-            keyExtractor={(item) => item.id}
-            contentContainerStyle={styles.list}
-            renderItem={({ item }) => <BookRow book={item} onPress={() => setIsPickerOpen(false)} />}
-          />
-        </SafeAreaView>
-      </Modal>
     </SafeAreaView>
   );
 }
@@ -99,10 +75,6 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: "#f8fafc"
-  },
-  modalScreen: {
-    flex: 1,
-    backgroundColor: "#ffffff"
   },
   header: {
     height: 56,

@@ -1,0 +1,28 @@
+{
+  "rewrites": [
+    {
+      "source": "/books",
+      "destination": "/api/books"
+    },
+    {
+      "source": "/books/:id",
+      "destination": "/api/books/:id"
+    },
+    {
+      "source": "/auth/session",
+      "destination": "/api/auth/session"
+    },
+    {
+      "source": "/auth/login",
+      "destination": "/api/auth/login"
+    },
+    {
+      "source": "/auth/logout",
+      "destination": "/api/auth/logout"
+    },
+    {
+      "source": "/admin",
+      "destination": "/index.html"
+    }
+  ]
+}
