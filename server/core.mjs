@@ -12,13 +12,14 @@ const blobPath = process.env.BOOKS_BLOB_PATH || "data/books.json";
 const adminUsername = process.env.ADMIN_USERNAME || "admin";
 const adminPassword = process.env.ADMIN_PASSWORD || "admin123";
 const sessionSecret = process.env.ADMIN_SESSION_SECRET || "local-development-secret";
+const adminApiToken = process.env.ADMIN_API_TOKEN || "";
 
 export function sendJson(res, status, payload, headers = {}) {
   res.writeHead(status, {
     "Content-Type": "application/json; charset=utf-8",
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Admin-Api-Token",
     ...headers
   });
   res.end(JSON.stringify(payload));
@@ -28,7 +29,7 @@ export function sendNoContent(res, status = 204, headers = {}) {
   res.writeHead(status, {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Admin-Api-Token",
     ...headers
   });
   res.end();
@@ -106,8 +107,21 @@ export function isAuthenticated(req) {
   }
 }
 
+export function isApiTokenAuthenticated(req) {
+  if (!adminApiToken) {
+    return false;
+  }
+
+  const authorization = String(req.headers.authorization || "");
+  const bearerToken = authorization.startsWith("Bearer ") ? authorization.slice("Bearer ".length).trim() : "";
+  const headerToken = String(req.headers["x-admin-api-token"] || "").trim();
+  const token = bearerToken || headerToken;
+
+  return Boolean(token) && isEqualString(token, adminApiToken);
+}
+
 export function requireAdmin(req, res) {
-  if (isAuthenticated(req)) {
+  if (isAuthenticated(req) || isApiTokenAuthenticated(req)) {
     return true;
   }
 

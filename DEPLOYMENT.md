@@ -16,12 +16,15 @@ Set these in Vercel project settings:
 ADMIN_USERNAME=your-admin-name
 ADMIN_PASSWORD=your-long-private-password
 ADMIN_SESSION_SECRET=your-random-secret
+ADMIN_API_TOKEN=your-long-random-machine-token
 BLOB_READ_WRITE_TOKEN=your-vercel-blob-token
 BOOKS_BLOB_PATH=data/books.json
 EXPO_PUBLIC_API_URL=https://reading-app-sigma.vercel.app
 ```
 
 Use a strong value for `ADMIN_SESSION_SECRET`. It is used to sign the admin login cookie.
+
+Use a different strong value for `ADMIN_API_TOKEN`. It lets trusted automation create draft books with `Authorization: Bearer <token>` without using the web admin login.
 
 ## Vercel Setup
 
