@@ -1,11 +1,13 @@
 const app = document.querySelector("#app");
 const appInfo = {
-  name: "Reading APP",
+  name: "轻轻读",
+  englishName: "RelaxReading",
   version: "0.1.0",
   privacyUpdatedAt: "2026-06-05"
 };
 
 let books = [];
+let drafts = [];
 let route =
   window.location.pathname === "/admin"
     ? { name: "admin" }
@@ -22,6 +24,23 @@ async function loadBooks() {
   const response = await fetch("/books");
   const payload = await response.json();
   books = payload.books;
+}
+
+async function loadDrafts() {
+  if (!isAdminAuthenticated) {
+    drafts = [];
+    return;
+  }
+
+  const response = await fetch("/drafts");
+
+  if (!response.ok) {
+    drafts = [];
+    return;
+  }
+
+  const payload = await response.json();
+  drafts = payload.drafts || [];
 }
 
 async function loadSession() {
@@ -42,6 +61,7 @@ function icon(label) {
 function emptyDraft() {
   return {
     id: "",
+    source: "draft",
     title: "",
     author: "",
     summary: "",
@@ -49,13 +69,25 @@ function emptyDraft() {
   };
 }
 
-function bookToDraft(book) {
+function bookToDraft(book, source = "book") {
   return {
     id: book.id,
+    source,
     title: book.title,
     author: book.author,
     summary: book.summary,
     content: book.sections.map((section) => section.text).join("\n\n")
+  };
+}
+
+function savedDraftToDraft(draft) {
+  return {
+    id: draft.id,
+    source: "draft",
+    title: draft.title,
+    author: draft.author,
+    summary: draft.summary,
+    content: draft.content
   };
 }
 
@@ -81,6 +113,7 @@ function formToDraft(form) {
   const data = Object.fromEntries(new FormData(form).entries());
   return {
     id: adminDraft.id,
+    source: adminDraft.source || "draft",
     title: String(data.title || "").trim(),
     author: String(data.author || "").trim(),
     summary: String(data.summary || "").trim(),
@@ -229,6 +262,7 @@ function renderPrivacy() {
       </header>
       <article class="policy">
         <h2>${appInfo.name} 隐私政策</h2>
+        <p class="policy-date">${appInfo.englishName}</p>
         <p class="policy-date">更新日期：${appInfo.privacyUpdatedAt}</p>
 
         <h3>我们收集的信息</h3>
@@ -306,6 +340,7 @@ function renderLogin() {
 
     isAdminAuthenticated = true;
     adminMessage = "";
+    await loadDrafts();
     renderAdmin();
   });
 }
@@ -402,20 +437,51 @@ function renderAdmin() {
     return;
   }
 
-  const isEditing = Boolean(adminDraft.id);
+  const isEditingPublished = Boolean(adminDraft.id && adminDraft.source === "book");
+  const isEditingDraft = Boolean(adminDraft.id && adminDraft.source === "draft");
   const pageCount = countPages(adminDraft.content);
 
   app.innerHTML = `
     <section class="shell">
       <header class="bar">
         <button class="icon-btn" id="back" title="返回">${icon("‹")}</button>
-        <h1>${isEditing ? "编辑书籍" : "后台上传"}</h1>
+        <h1>${isEditingPublished ? "编辑书籍" : isEditingDraft ? "编辑草稿" : "后台上传"}</h1>
         <button class="icon-btn" id="new-book" title="新建">${icon("+")}</button>
       </header>
       <section class="manager">
         <div class="library-panel">
           <div class="panel-title">
-            <h2>已有书籍</h2>
+            <h2>待审核草稿</h2>
+            <span>${drafts.length} 份</span>
+          </div>
+          <div class="admin-list">
+            ${
+              drafts.length
+                ? drafts
+                    .map(
+                      (draft) => `
+                        <article class="admin-book">
+                          <div>
+                            <h3>${escapeHtml(draft.title)}</h3>
+                            <p>${escapeHtml(draft.author)} · ${countPages(draft.content)} 页</p>
+                          </div>
+                          <div class="row-actions">
+                            <button class="small-btn" data-draft-edit-id="${draft.id}" type="button">编辑</button>
+                            <button class="small-btn" data-draft-preview-id="${draft.id}" type="button">预览</button>
+                            <button class="small-btn primary" data-draft-publish-id="${draft.id}" type="button">发布</button>
+                            <button class="small-btn danger" data-draft-delete-id="${draft.id}" type="button">删除</button>
+                          </div>
+                        </article>
+                      `
+                    )
+                    .join("")
+                : `<p class="empty compact">还没有待审核草稿。</p>`
+            }
+          </div>
+        </div>
+        <div class="library-panel">
+          <div class="panel-title">
+            <h2>已发布书籍</h2>
             <span>${books.length} 本</span>
           </div>
           <div class="admin-list">
@@ -461,7 +527,9 @@ function renderAdmin() {
           </div>
           <textarea id="content" name="content" placeholder="第一页内容&#10;&#10;第二页内容&#10;&#10;第三页内容" required>${escapeHtml(adminDraft.content)}</textarea>
         </div>
-        <button class="save" type="submit">${isEditing ? "保存修改" : "保存"}</button>
+        <button class="save" type="submit">${
+          isEditingPublished ? "保存正式书籍" : isEditingDraft ? "保存草稿" : "保存到待审核"
+        }</button>
         <button class="secondary-action" id="preview-reading" type="button">预览阅读</button>
         <p class="message" id="message">${escapeHtml(adminMessage)}</p>
       </form>
@@ -481,11 +549,89 @@ function renderAdmin() {
     adminMessage = "";
     renderAdmin();
   });
+  document.querySelectorAll("[data-draft-edit-id]").forEach((node) => {
+    node.addEventListener("click", () => {
+      const draft = drafts.find((item) => item.id === node.getAttribute("data-draft-edit-id"));
+      if (draft) {
+        adminDraft = savedDraftToDraft(draft);
+        adminMessage = "";
+        renderAdmin();
+      }
+    });
+  });
+  document.querySelectorAll("[data-draft-preview-id]").forEach((node) => {
+    node.addEventListener("click", () => {
+      const draft = drafts.find((item) => item.id === node.getAttribute("data-draft-preview-id"));
+      if (draft) {
+        adminDraft = savedDraftToDraft(draft);
+        previewBook = draftToPreviewBook(adminDraft);
+        setRoute({ name: "reader", id: previewBook.id, page: 0, preview: true });
+      }
+    });
+  });
+  document.querySelectorAll("[data-draft-publish-id]").forEach((node) => {
+    node.addEventListener("click", async () => {
+      const draft = drafts.find((item) => item.id === node.getAttribute("data-draft-publish-id"));
+      if (!draft || !confirm(`发布《${draft.title}》？发布后用户侧即可阅读。`)) {
+        return;
+      }
+
+      const response = await fetch(`/drafts/${encodeURIComponent(draft.id)}`, {
+        method: "POST"
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          isAdminAuthenticated = false;
+          renderLogin();
+          return;
+        }
+        alert("发布失败。");
+        return;
+      }
+
+      if (adminDraft.id === draft.id && adminDraft.source === "draft") {
+        adminDraft = emptyDraft();
+      }
+      adminMessage = "已发布。用户侧现在可以阅读。";
+      await Promise.all([loadBooks(), loadDrafts()]);
+      renderAdmin();
+    });
+  });
+  document.querySelectorAll("[data-draft-delete-id]").forEach((node) => {
+    node.addEventListener("click", async () => {
+      const draft = drafts.find((item) => item.id === node.getAttribute("data-draft-delete-id"));
+      if (!draft || !confirm(`删除草稿《${draft.title}》？`)) {
+        return;
+      }
+
+      const response = await fetch(`/drafts/${encodeURIComponent(draft.id)}`, {
+        method: "DELETE"
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          isAdminAuthenticated = false;
+          renderLogin();
+          return;
+        }
+        alert("删除草稿失败。");
+        return;
+      }
+
+      if (adminDraft.id === draft.id && adminDraft.source === "draft") {
+        adminDraft = emptyDraft();
+      }
+      adminMessage = "草稿已删除。";
+      await loadDrafts();
+      renderAdmin();
+    });
+  });
   document.querySelectorAll("[data-edit-id]").forEach((node) => {
     node.addEventListener("click", () => {
       const book = books.find((item) => item.id === node.getAttribute("data-edit-id"));
       if (book) {
-        adminDraft = bookToDraft(book);
+        adminDraft = bookToDraft(book, "book");
         adminMessage = "";
         renderAdmin();
       }
@@ -547,11 +693,16 @@ function renderAdmin() {
       summary: adminDraft.summary,
       content: adminDraft.content
     };
-    const wasEditing = Boolean(adminDraft.id);
+    const wasEditingPublished = Boolean(adminDraft.id && adminDraft.source === "book");
+    const wasEditingDraft = Boolean(adminDraft.id && adminDraft.source === "draft");
     const message = document.querySelector("#message");
-    const endpoint = adminDraft.id ? `/books/${encodeURIComponent(adminDraft.id)}` : "/books";
+    const endpoint = wasEditingPublished
+      ? `/books/${encodeURIComponent(adminDraft.id)}`
+      : wasEditingDraft
+        ? `/drafts/${encodeURIComponent(adminDraft.id)}`
+        : "/drafts";
     const response = await fetch(endpoint, {
-      method: adminDraft.id ? "PUT" : "POST",
+      method: wasEditingPublished || wasEditingDraft ? "PUT" : "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data)
     });
@@ -567,10 +718,18 @@ function renderAdmin() {
       return;
     }
 
-    await loadBooks();
+    await Promise.all([loadBooks(), loadDrafts()]);
     const saved = await response.json().catch(() => null);
-    adminDraft = saved ? bookToDraft(saved) : emptyDraft();
-    adminMessage = wasEditing ? "已保存修改。回到选书页即可阅读。" : "已保存。回到选书页即可阅读。";
+    adminDraft = saved
+      ? wasEditingPublished
+        ? bookToDraft(saved, "book")
+        : savedDraftToDraft(saved)
+      : emptyDraft();
+    adminMessage = wasEditingPublished
+      ? "正式书籍已保存。"
+      : wasEditingDraft
+        ? "草稿已保存，发布后用户侧可见。"
+        : "已保存到待审核，发布后用户侧可见。";
     renderAdmin();
   });
 }
@@ -612,6 +771,7 @@ async function boot() {
   }
 
   await Promise.all([loadBooks(), loadSession()]);
+  await loadDrafts();
   render();
 }
 

@@ -9,6 +9,14 @@
       "destination": "/api/books/:id"
     },
     {
+      "source": "/drafts",
+      "destination": "/api/drafts"
+    },
+    {
+      "source": "/drafts/:id",
+      "destination": "/api/drafts/:id"
+    },
+    {
       "source": "/auth/session",
       "destination": "/api/auth/session"
     },

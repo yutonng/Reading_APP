@@ -63,7 +63,7 @@ export default function ReaderScreen() {
       Animated.parallel([
         Animated.sequence([
           Animated.timing(turnOpacity, {
-            toValue: 1,
+            toValue: 0.72,
             duration: 80,
             useNativeDriver: true
           }),
@@ -90,7 +90,7 @@ export default function ReaderScreen() {
       setTurnDirection(direction);
       turnOpacity.stopAnimation();
       turnTranslateX.stopAnimation();
-      turnOpacity.setValue(Math.min(distance / 130, 1));
+      turnOpacity.setValue(Math.min(distance / 170, 0.72));
       turnTranslateX.setValue(direction === "next" ? 72 - distance * 0.7 : -72 + distance * 0.7);
     },
     [turnOpacity, turnTranslateX]
@@ -323,7 +323,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     paddingHorizontal: 28,
-    paddingVertical: 48
+    paddingTop: 20,
+    paddingBottom: 92
   },
   progressLabel: {
     position: "absolute",
@@ -365,17 +366,17 @@ const styles = StyleSheet.create({
     bottom: 0,
     width: "64%",
     zIndex: 5,
-    backgroundColor: "rgba(39, 49, 45, 0.12)"
+    backgroundColor: "rgba(39, 49, 45, 0.065)"
   },
   turnOverlayNext: {
     right: 0,
     borderLeftWidth: 1,
-    borderLeftColor: "rgba(39, 49, 45, 0.12)"
+    borderLeftColor: "rgba(39, 49, 45, 0.08)"
   },
   turnOverlayPrevious: {
     left: 0,
     borderRightWidth: 1,
-    borderRightColor: "rgba(39, 49, 45, 0.12)"
+    borderRightColor: "rgba(39, 49, 45, 0.08)"
   },
   emptyTitle: {
     fontSize: 18,

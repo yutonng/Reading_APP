@@ -188,21 +188,27 @@ async function writeBooksToBlob(payload) {
   });
 }
 
-export async function readBooks() {
-  if (process.env.BLOB_READ_WRITE_TOKEN) {
-    return readBooksFromBlob();
-  }
+function normalizeLibrary(payload) {
+  return {
+    books: Array.isArray(payload?.books) ? payload.books : [],
+    drafts: Array.isArray(payload?.drafts) ? payload.drafts : []
+  };
+}
 
-  return readBooksFromFile();
+export async function readBooks() {
+  const payload = process.env.BLOB_READ_WRITE_TOKEN ? await readBooksFromBlob() : await readBooksFromFile();
+  return normalizeLibrary(payload);
 }
 
 export async function writeBooks(payload) {
+  const nextPayload = normalizeLibrary(payload);
+
   if (process.env.BLOB_READ_WRITE_TOKEN) {
-    await writeBooksToBlob(payload);
+    await writeBooksToBlob(nextPayload);
     return;
   }
 
-  await writeBooksToFile(payload);
+  await writeBooksToFile(nextPayload);
 }
 
 export function slugifyId(title) {
@@ -230,6 +236,11 @@ export function getBookIdFromPath(pathname) {
   return match ? decodeURIComponent(match[1]) : null;
 }
 
+export function getDraftIdFromPath(pathname) {
+  const match = pathname.match(/^\/(?:api\/)?drafts\/([^/]+)$/);
+  return match ? decodeURIComponent(match[1]) : null;
+}
+
 export function validateBookBody(body) {
   const title = String(body.title || "").trim();
   const author = String(body.author || "").trim();
@@ -243,6 +254,34 @@ export function validateBookBody(body) {
   return { title, author, summary, content };
 }
 
+function createDraft(fields, id = null) {
+  const now = new Date().toISOString();
+
+  return {
+    id: id || slugifyId(fields.title),
+    title: fields.title,
+    author: fields.author,
+    summary: fields.summary,
+    content: fields.content,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
+function draftToBook(draft, existingBook = null) {
+  const now = new Date().toISOString();
+
+  return {
+    id: existingBook?.id || slugifyId(draft.title),
+    title: draft.title,
+    author: draft.author,
+    summary: draft.summary,
+    sections: parseSections(draft.content),
+    createdAt: existingBook?.createdAt || draft.createdAt || now,
+    updatedAt: now
+  };
+}
+
 export async function handleApiRequest(req, res, pathname) {
   if (req.method === "OPTIONS") {
     sendNoContent(res);
@@ -250,7 +289,18 @@ export async function handleApiRequest(req, res, pathname) {
   }
 
   if (req.method === "GET" && pathname === "/books") {
-    sendJson(res, 200, await readBooks());
+    const current = await readBooks();
+    sendJson(res, 200, { books: current.books });
+    return true;
+  }
+
+  if (req.method === "GET" && pathname === "/drafts") {
+    if (!requireAdmin(req, res)) {
+      return true;
+    }
+
+    const current = await readBooks();
+    sendJson(res, 200, { drafts: current.drafts });
     return true;
   }
 
@@ -294,12 +344,32 @@ export async function handleApiRequest(req, res, pathname) {
       updatedAt: now
     };
 
-    await writeBooks({ books: [book, ...current.books] });
+    await writeBooks({ ...current, books: [book, ...current.books] });
     sendJson(res, 201, book);
     return true;
   }
 
+  if (req.method === "POST" && pathname === "/drafts") {
+    if (!requireAdmin(req, res)) {
+      return true;
+    }
+
+    const fields = validateBookBody(await readBody(req));
+
+    if (fields.error) {
+      sendJson(res, 400, { error: fields.error });
+      return true;
+    }
+
+    const current = await readBooks();
+    const draft = createDraft(fields);
+    await writeBooks({ ...current, drafts: [draft, ...current.drafts] });
+    sendJson(res, 201, draft);
+    return true;
+  }
+
   const bookId = getBookIdFromPath(pathname);
+  const draftId = getDraftIdFromPath(pathname);
 
   if (bookId && req.method === "PUT") {
     if (!requireAdmin(req, res)) {
@@ -331,6 +401,7 @@ export async function handleApiRequest(req, res, pathname) {
     };
 
     await writeBooks({
+      ...current,
       books: current.books.map((book) => (book.id === bookId ? updated : book))
     });
     sendJson(res, 200, updated);
@@ -350,7 +421,84 @@ export async function handleApiRequest(req, res, pathname) {
       return true;
     }
 
-    await writeBooks({ books: nextBooks });
+    await writeBooks({ ...current, books: nextBooks });
+    sendJson(res, 200, { ok: true });
+    return true;
+  }
+
+  if (draftId && req.method === "PUT") {
+    if (!requireAdmin(req, res)) {
+      return true;
+    }
+
+    const fields = validateBookBody(await readBody(req));
+
+    if (fields.error) {
+      sendJson(res, 400, { error: fields.error });
+      return true;
+    }
+
+    const current = await readBooks();
+    const existing = current.drafts.find((draft) => draft.id === draftId);
+
+    if (!existing) {
+      sendJson(res, 404, { error: "没有找到这份草稿。" });
+      return true;
+    }
+
+    const updated = {
+      ...existing,
+      title: fields.title,
+      author: fields.author,
+      summary: fields.summary,
+      content: fields.content,
+      updatedAt: new Date().toISOString()
+    };
+
+    await writeBooks({
+      ...current,
+      drafts: current.drafts.map((draft) => (draft.id === draftId ? updated : draft))
+    });
+    sendJson(res, 200, updated);
+    return true;
+  }
+
+  if (draftId && req.method === "POST") {
+    if (!requireAdmin(req, res)) {
+      return true;
+    }
+
+    const current = await readBooks();
+    const draft = current.drafts.find((item) => item.id === draftId);
+
+    if (!draft) {
+      sendJson(res, 404, { error: "没有找到这份草稿。" });
+      return true;
+    }
+
+    const book = draftToBook(draft);
+    await writeBooks({
+      books: [book, ...current.books],
+      drafts: current.drafts.filter((item) => item.id !== draftId)
+    });
+    sendJson(res, 201, book);
+    return true;
+  }
+
+  if (draftId && req.method === "DELETE") {
+    if (!requireAdmin(req, res)) {
+      return true;
+    }
+
+    const current = await readBooks();
+    const nextDrafts = current.drafts.filter((draft) => draft.id !== draftId);
+
+    if (nextDrafts.length === current.drafts.length) {
+      sendJson(res, 404, { error: "没有找到这份草稿。" });
+      return true;
+    }
+
+    await writeBooks({ ...current, drafts: nextDrafts });
     sendJson(res, 200, { ok: true });
     return true;
   }

@@ -21,6 +21,7 @@ export default function SettingsScreen() {
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.panel}>
           <Text style={styles.appName}>{appInfo.name}</Text>
+          <Text style={styles.englishName}>{appInfo.englishName}</Text>
           <Text style={styles.appDescription}>用 3-5 分钟读完一本书。</Text>
         </View>
 
@@ -89,6 +90,12 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "800",
     color: "#fffaf0"
+  },
+  englishName: {
+    marginTop: 4,
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#c9d8cf"
   },
   appDescription: {
     marginTop: 8,

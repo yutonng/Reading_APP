@@ -3,6 +3,14 @@ apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
 
 def projectRoot = rootDir.getAbsoluteFile().getParentFile().getAbsolutePath()
+def releaseSigningPropertiesFile = file("release-signing.properties")
+def releaseSigningProperties = new Properties()
+
+if (releaseSigningPropertiesFile.exists()) {
+    releaseSigningPropertiesFile.withInputStream { stream ->
+        releaseSigningProperties.load(stream)
+    }
+}
 
 /**
  * This is the configuration block to customize your React Native Android app.
@@ -104,15 +112,24 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        release {
+            if (releaseSigningPropertiesFile.exists()) {
+                storeFile file(releaseSigningProperties['storeFile'])
+                storePassword releaseSigningProperties['storePassword']
+                keyAlias releaseSigningProperties['keyAlias']
+                keyPassword releaseSigningProperties['keyPassword']
+            }
+        }
     }
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
         }
         release {
-            // Caution! In production, you need to generate your own keystore file.
-            // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
+            if (!releaseSigningPropertiesFile.exists()) {
+                throw new GradleException("Missing android/app/release-signing.properties. Create production signing config before building release.")
+            }
+            signingConfig signingConfigs.release
             def enableShrinkResources = findProperty('android.enableShrinkResourcesInReleaseBuilds') ?: 'false'
             shrinkResources enableShrinkResources.toBoolean()
             minifyEnabled enableMinifyInReleaseBuilds

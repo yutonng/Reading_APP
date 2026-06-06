@@ -2,10 +2,12 @@ node_modules/
 .expo/
 .local-home/
 .npm-cache/
+.DS_Store
 dist/
 app/.idea/
 
 # Android Studio / Gradle generated files
+android/.gradle-home/
 android/.gradle/
 android/.kotlin/
 android/.idea/
@@ -15,5 +17,7 @@ android/app/.cxx/
 android/app/.idea/
 android/app/build/
 android/app/local.properties
+android/app/release-signing.properties
+android/app/keystores/
 android/$PWD/
 android/local.properties

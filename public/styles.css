@@ -288,7 +288,7 @@ textarea {
   margin: 0 auto;
   padding: 16px;
   display: grid;
-  grid-template-columns: 320px 1fr;
+  grid-template-columns: 340px 1fr;
   align-items: start;
   gap: 16px;
 }
@@ -353,12 +353,13 @@ textarea {
 
 .row-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
 .small-btn {
   min-height: 34px;
-  flex: 1;
+  flex: 1 1 72px;
   border: 1px solid #d1d5db;
   border-radius: 8px;
   background: #ffffff;
@@ -373,6 +374,12 @@ textarea {
 .small-btn.danger {
   border-color: #fecaca;
   color: #991b1b;
+}
+
+.small-btn.primary {
+  border-color: #111827;
+  background: #111827;
+  color: #ffffff;
 }
 
 .field {

@@ -12,9 +12,9 @@ This document tracks the required work before publishing the Android app to Goog
 
 ## 1. Product And App Readiness
 
-- [ ] Confirm final app name.
+- [x] Confirm final app name.
 - [ ] Confirm final Android package name.
-- [ ] Remove or hide any admin-only entry from the user-facing Android app.
+- [x] Remove or hide any admin-only entry from the user-facing Android app.
 - [x] Add an About/Settings screen.
 - [x] Show app version in the app.
 - [x] Add Privacy Policy entry in the app.
@@ -28,16 +28,16 @@ This document tracks the required work before publishing the Android app to Goog
 - [ ] Add Privacy Policy URL to Google Play Console.
 - [ ] Document what data the app collects.
 - [ ] Confirm reading progress is stored locally only.
-- [ ] Confirm admin login is not exposed to normal users.
+- [x] Confirm admin login is not exposed to normal users.
 - [ ] Prepare Google Play Data Safety answers.
 - [ ] Prepare age rating questionnaire answers.
 - [ ] Add support email.
 
 ## 3. Branding And Store Assets
 
-- [ ] Create production app icon.
-- [ ] Create Android adaptive icon.
-- [ ] Create splash screen asset.
+- [x] Create production app icon.
+- [x] Create Android adaptive icon.
+- [x] Create splash screen asset.
 - [ ] Prepare feature graphic.
 - [ ] Prepare phone screenshots.
 - [ ] Write short description.
@@ -47,15 +47,15 @@ This document tracks the required work before publishing the Android app to Goog
 
 ## 4. Android Release Build
 
-- [ ] Create production signing key.
-- [ ] Store signing key safely.
-- [ ] Configure release signing.
-- [ ] Set `versionName`.
-- [ ] Set `versionCode`.
-- [ ] Build Android App Bundle (`.aab`) for Google Play.
-- [ ] Verify release build installs and opens on real Android device.
-- [ ] Verify release build reads books from production API.
-- [ ] Verify release build does not require local development server.
+- [x] Create production signing key.
+- [x] Store signing key safely.
+- [x] Configure release signing.
+- [x] Set `versionName`.
+- [x] Set `versionCode`.
+- [ ] Build signed release APK for China Android stores.
+- [x] Verify release build installs and opens on real Android device.
+- [x] Verify release build reads books from production API.
+- [x] Verify release build does not require local development server.
 
 ## 5. Testing Before Submission
 
@@ -75,17 +75,16 @@ This document tracks the required work before publishing the Android app to Goog
 
 ## 6. Google Play Console
 
-- [ ] Create Google Play app.
+- [ ] Create China Android store app records.
 - [ ] Fill app details.
-- [ ] Upload app bundle.
-- [ ] Fill Data Safety.
+- [ ] Upload signed release APK.
+- [ ] Fill privacy/compliance forms required by each store.
 - [ ] Fill content rating.
 - [ ] Add Privacy Policy URL.
 - [ ] Add screenshots and graphics.
 - [ ] Set countries/regions.
-- [ ] Configure testing track.
+- [ ] Configure store testing/review track if available.
 - [ ] Run internal testing.
-- [ ] Run closed testing if required by account.
 - [ ] Fix issues found in testing.
 - [ ] Submit production release.
 
@@ -95,14 +94,14 @@ This document tracks the required work before publishing the Android app to Goog
 2. Bind final production domain and update app API config.
 3. Create Privacy Policy page.
 4. Create app icon, splash, screenshots, and descriptions.
-5. Configure release signing and build `.aab`.
+5. Configure release signing and build signed release APK.
 6. Test the release build on real device.
 7. Set up Google Play Console listing and testing track.
 8. Submit for review.
 
 ## Notes
 
-- Current APK builds are suitable for real-device testing, but Google Play normally expects an Android App Bundle (`.aab`).
-- The release build must use production signing, not debug signing.
+- Current target is China Android app stores, so the primary upload artifact is a signed release APK.
+- The release build uses production signing, not debug signing.
 - Book updates should happen through the online admin page and Vercel Blob, not by rebuilding the app.
-- If the Google Play developer account is new, closed testing may be required before production release.
+- Store requirements vary by China Android store; confirm each store's ICP, software copyright, privacy, and security requirements before submission.

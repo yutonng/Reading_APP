@@ -47,7 +47,7 @@ export default function BookListScreen() {
     <SafeAreaView style={styles.screen} edges={["top", "bottom"]}>
       <View style={styles.header}>
         <View style={styles.iconButton} />
-        <Text style={styles.title}>首页</Text>
+        <Text style={styles.title}>书库</Text>
         <Link href="/settings" asChild>
           <Pressable style={styles.iconButton}>
             <Ionicons name="settings-outline" size={22} color="#202724" />
@@ -129,12 +129,18 @@ function BookRow({
   return (
     <Pressable style={styles.bookRow} onPress={onPress}>
       <View style={styles.bookText}>
-        <Text style={styles.bookTitle}>{book.title}</Text>
-        <Text style={styles.author}>
-          {book.author} · {book.sections.length} 页
+        <View style={styles.bookHeader}>
+          <Text style={styles.bookTitle} numberOfLines={1}>
+            {book.title}
+          </Text>
+          <Text style={styles.bookMeta} numberOfLines={1}>
+            {book.author} · {book.sections.length} 页
+          </Text>
+        </View>
+        <Text style={styles.summary} numberOfLines={2}>
+          {book.summary}
           {progress.isStarted ? ` · 已读 ${progress.page + 1}` : ""}
         </Text>
-        <Text style={styles.summary}>{book.summary}</Text>
       </View>
       <Ionicons name="chevron-forward" size={20} color="#6b7280" />
     </Pressable>
@@ -174,7 +180,7 @@ const styles = StyleSheet.create({
   },
   list: {
     padding: 18,
-    gap: 14
+    gap: 10
   },
   offlineNotice: {
     minHeight: 44,
@@ -240,7 +246,7 @@ const styles = StyleSheet.create({
     color: "#24312f"
   },
   bookRow: {
-    minHeight: 112,
+    minHeight: 82,
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
@@ -248,7 +254,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ebe1d6",
     backgroundColor: "#fffdf9",
-    padding: 16,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
     shadowColor: "#6b5f51",
     shadowOffset: { width: 0, height: 5 },
     shadowOpacity: 0.06,
@@ -257,20 +264,28 @@ const styles = StyleSheet.create({
   },
   bookText: {
     flex: 1,
-    gap: 6
+    gap: 5
+  },
+  bookHeader: {
+    flexDirection: "row",
+    alignItems: "baseline",
+    gap: 10
   },
   bookTitle: {
-    fontSize: 20,
+    flex: 1,
+    fontSize: 18,
     fontWeight: "700",
     color: "#202724"
   },
-  author: {
-    fontSize: 14,
+  bookMeta: {
+    maxWidth: "46%",
+    flexShrink: 0,
+    fontSize: 13,
     color: "#68736c"
   },
   summary: {
-    fontSize: 15,
-    lineHeight: 22,
+    fontSize: 14,
+    lineHeight: 20,
     color: "#454f49"
   },
   empty: {
