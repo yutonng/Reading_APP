@@ -3,14 +3,15 @@ import { Link } from "expo-router";
 import { useMemo, useState } from "react";
 import {
   Pressable,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
   View
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
+import { countBookPages } from "@/core/book-content";
 import { saveBook } from "@/lib/books";
 
 export default function AdminScreen() {
@@ -21,10 +22,7 @@ export default function AdminScreen() {
   const [message, setMessage] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
-  const pageCount = useMemo(
-    () => content.split(/\n\s*\n/g).map((item) => item.trim()).filter(Boolean).length,
-    [content]
-  );
+  const pageCount = useMemo(() => countBookPages(content), [content]);
 
   async function handleSave() {
     setIsSaving(true);
@@ -44,11 +42,11 @@ export default function AdminScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.screen}>
+    <SafeAreaView style={styles.screen} edges={["top", "bottom"]}>
       <View style={styles.header}>
         <Link href="/" asChild>
           <Pressable style={styles.iconButton}>
-            <Ionicons name="chevron-back" size={24} color="#111827" />
+            <Ionicons name="chevron-back" size={24} color="#202724" />
           </Pressable>
         </Link>
         <Text style={styles.title}>后台上传</Text>
@@ -117,7 +115,7 @@ function Field(props: {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: "#f8fafc"
+    backgroundColor: "#f5f2ed"
   },
   header: {
     height: 56,
@@ -126,7 +124,8 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "#e5e7eb"
+    borderBottomColor: "#e8dfd3",
+    backgroundColor: "#fbfaf7"
   },
   iconButton: {
     width: 44,
@@ -137,7 +136,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#111827"
+    color: "#202724"
   },
   form: {
     width: "100%",
@@ -157,22 +156,22 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: "700",
-    color: "#111827"
+    color: "#202724"
   },
   hint: {
     fontSize: 13,
-    color: "#6b7280"
+    color: "#7a746b"
   },
   input: {
     minHeight: 46,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#d1d5db",
-    backgroundColor: "#ffffff",
+    borderColor: "#ded2c4",
+    backgroundColor: "#fffdf9",
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 16,
-    color: "#111827"
+    color: "#202724"
   },
   contentInput: {
     minHeight: 320,
@@ -185,7 +184,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
-    backgroundColor: "#111827"
+    backgroundColor: "#24312f"
   },
   saveButtonDisabled: {
     opacity: 0.6

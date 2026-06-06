@@ -52,6 +52,11 @@ textarea {
   border-radius: 8px;
   background: transparent;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: inherit;
+  text-decoration: none;
 }
 
 .icon-btn:hover {
@@ -433,6 +438,36 @@ textarea {
 
 .message.error {
   color: #991b1b;
+}
+
+.policy {
+  width: min(760px, calc(100% - 32px));
+  margin: 24px auto;
+  padding: 22px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.policy h2 {
+  margin: 0 0 6px;
+  font-size: 24px;
+}
+
+.policy h3 {
+  margin: 24px 0 8px;
+  font-size: 17px;
+}
+
+.policy p {
+  margin: 0;
+  color: #374151;
+  line-height: 1.7;
+}
+
+.policy-date {
+  color: #6b7280;
+  font-size: 14px;
 }
 
 .empty {

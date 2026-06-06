@@ -1,7 +1,17 @@
 const app = document.querySelector("#app");
+const appInfo = {
+  name: "Reading APP",
+  version: "0.1.0",
+  privacyUpdatedAt: "2026-06-05"
+};
 
 let books = [];
-let route = window.location.pathname === "/admin" ? { name: "admin" } : { name: "list" };
+let route =
+  window.location.pathname === "/admin"
+    ? { name: "admin" }
+    : window.location.pathname === "/privacy"
+      ? { name: "privacy" }
+      : { name: "list" };
 let adminDraft = emptyDraft();
 let adminMessage = "";
 let previewBook = null;
@@ -147,9 +157,9 @@ function renderList() {
   app.innerHTML = `
     <section class="shell">
       <header class="bar">
-        <button class="icon-btn" id="home-back" title="返回">${icon("‹")}</button>
-        <h1>首页</h1>
         <span class="bar-spacer"></span>
+        <h1>首页</h1>
+        <a class="icon-btn" href="/privacy" title="隐私政策">${icon("ⓘ")}</a>
       </header>
       ${
         lastRead
@@ -193,11 +203,6 @@ function renderList() {
     </section>
   `;
 
-  document.querySelector("#home-back").addEventListener("click", () => {
-    if (window.history.length > 1) {
-      window.history.back();
-    }
-  });
   document.querySelector("#continue-reading")?.addEventListener("click", () =>
     setRoute({
       name: "reader",
@@ -211,6 +216,48 @@ function renderList() {
       const progress = book ? getBookProgress(book) : { page: 0 };
       setRoute({ name: "reader", id: node.getAttribute("data-book-id"), page: progress.page });
     });
+  });
+}
+
+function renderPrivacy() {
+  app.innerHTML = `
+    <section class="shell">
+      <header class="bar">
+        <button class="icon-btn" id="privacy-back" title="返回">${icon("‹")}</button>
+        <h1>隐私政策</h1>
+        <span class="bar-spacer"></span>
+      </header>
+      <article class="policy">
+        <h2>${appInfo.name} 隐私政策</h2>
+        <p class="policy-date">更新日期：${appInfo.privacyUpdatedAt}</p>
+
+        <h3>我们收集的信息</h3>
+        <p>用户侧阅读 App 不要求注册账号。阅读进度保存在设备本地，用于继续阅读，不会主动上传到服务器。</p>
+
+        <h3>书籍内容</h3>
+        <p>App 会从云端接口获取书籍列表和正文内容。书籍内容由管理员通过后台维护，并存储在 Vercel Blob。</p>
+
+        <h3>后台管理</h3>
+        <p>后台仅供管理员使用。后台登录使用账号和密码，并通过登录 Cookie 维持会话。</p>
+
+        <h3>服务日志</h3>
+        <p>当你访问在线服务时，托管服务提供商可能会记录必要的请求日志，用于服务运行、安全排查和故障定位。</p>
+
+        <h3>第三方服务</h3>
+        <p>本项目当前使用 Vercel 托管网页、接口和云端书籍存储。</p>
+
+        <h3>联系我们</h3>
+        <p>如需删除或更正书籍内容，请联系应用开发者。</p>
+      </article>
+    </section>
+  `;
+
+  document.querySelector("#privacy-back").addEventListener("click", () => {
+    if (window.history.length > 1) {
+      window.history.back();
+      return;
+    }
+    window.location.href = "/";
   });
 }
 
@@ -538,6 +585,10 @@ function render() {
     renderAdmin();
     return;
   }
+  if (route.name === "privacy") {
+    renderPrivacy();
+    return;
+  }
   renderList();
 }
 
@@ -554,4 +605,14 @@ function escapeAttribute(value) {
   return escapeHtml(value).replaceAll("\n", "&#10;");
 }
 
-Promise.all([loadBooks(), loadSession()]).then(render);
+async function boot() {
+  if (route.name === "privacy") {
+    render();
+    return;
+  }
+
+  await Promise.all([loadBooks(), loadSession()]);
+  render();
+}
+
+boot();

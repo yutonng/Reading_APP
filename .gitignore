@@ -3,3 +3,17 @@ node_modules/
 .local-home/
 .npm-cache/
 dist/
+app/.idea/
+
+# Android Studio / Gradle generated files
+android/.gradle/
+android/.kotlin/
+android/.idea/
+android/build/
+android/app/.gradle/
+android/app/.cxx/
+android/app/.idea/
+android/app/build/
+android/app/local.properties
+android/$PWD/
+android/local.properties
