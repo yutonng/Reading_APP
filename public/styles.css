@@ -113,6 +113,7 @@ textarea {
 }
 
 .book {
+  position: relative;
   min-height: 112px;
   display: grid;
   grid-template-columns: 1fr auto;
@@ -124,6 +125,7 @@ textarea {
   background: #ffffff;
   text-align: left;
   cursor: pointer;
+  overflow: hidden;
 }
 
 .book h2 {
@@ -141,6 +143,21 @@ textarea {
   margin-bottom: 8px;
   color: #6b7280;
   font-size: 14px;
+}
+
+.book-progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background: rgba(17, 24, 39, 0.1);
+}
+
+.book-progress span {
+  display: block;
+  height: 100%;
+  background: #53635b;
 }
 
 .reader {

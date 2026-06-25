@@ -126,6 +126,10 @@ function BookRow({
   progress: ReturnType<typeof getBookProgress>;
   onPress: () => void;
 }) {
+  const progressPercent = progress.isStarted
+    ? Math.round(((progress.page + 1) / book.sections.length) * 100)
+    : 0;
+
   return (
     <Pressable style={styles.bookRow} onPress={onPress}>
       <View style={styles.bookText}>
@@ -139,10 +143,12 @@ function BookRow({
         </View>
         <Text style={styles.summary} numberOfLines={2}>
           {book.summary}
-          {progress.isStarted ? ` · 已读 ${progress.page + 1}` : ""}
         </Text>
       </View>
       <Ionicons name="chevron-forward" size={20} color="#6b7280" />
+      <View style={styles.bookProgressTrack}>
+        <View style={[styles.bookProgressFill, { width: `${progressPercent}%` }]} />
+      </View>
     </Pressable>
   );
 }
@@ -246,6 +252,7 @@ const styles = StyleSheet.create({
     color: "#24312f"
   },
   bookRow: {
+    position: "relative",
     minHeight: 82,
     flexDirection: "row",
     alignItems: "center",
@@ -260,7 +267,20 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 5 },
     shadowOpacity: 0.06,
     shadowRadius: 12,
-    elevation: 1
+    elevation: 1,
+    overflow: "hidden"
+  },
+  bookProgressTrack: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: 3,
+    backgroundColor: "rgba(83, 99, 91, 0.14)"
+  },
+  bookProgressFill: {
+    height: "100%",
+    backgroundColor: "#53635b"
   },
   bookText: {
     flex: 1,

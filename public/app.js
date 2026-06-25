@@ -215,16 +215,18 @@ function renderList() {
                 .map(
                   (book) => {
                     const progress = getBookProgress(book);
+                    const progressPercent = progress.isStarted
+                      ? Math.round(((progress.page + 1) / book.sections.length) * 100)
+                      : 0;
                     return `
                     <button class="book" data-book-id="${book.id}">
                       <span>
                         <h2>${escapeHtml(book.title)}</h2>
-                        <p class="meta">${escapeHtml(book.author)} · ${book.sections.length} 页${
-                          progress.isStarted ? ` · 已读 ${progress.page + 1}` : ""
-                        }</p>
+                        <p class="meta">${escapeHtml(book.author)} · ${book.sections.length} 页</p>
                         <p>${escapeHtml(book.summary)}</p>
                       </span>
                       <span aria-hidden="true">›</span>
+                      <span class="book-progress" aria-hidden="true"><span style="width: ${progressPercent}%"></span></span>
                     </button>
                   `;
                   }
