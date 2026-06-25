@@ -11,7 +11,7 @@ export default function SettingsScreen() {
       <View style={styles.header}>
         <Link href="/" asChild>
           <Pressable style={styles.iconButton}>
-            <Ionicons name="chevron-back" size={24} color="#efe2c7" />
+            <Ionicons name="chevron-back" size={24} color="#202724" />
           </Pressable>
         </Link>
         <Text style={styles.title}>关于</Text>
@@ -54,17 +54,17 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: "#101713"
+    backgroundColor: "#f5f2ed"
   },
   header: {
-    minHeight: 68,
+    height: 56,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(214, 187, 132, 0.14)",
-    backgroundColor: "#101713"
+    borderBottomColor: "#e8dfd3",
+    backgroundColor: "#fbfaf7"
   },
   iconButton: {
     width: 40,
@@ -74,8 +74,8 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 18,
-    fontWeight: "800",
-    color: "#f5ead6"
+    fontWeight: "700",
+    color: "#202724"
   },
   content: {
     padding: 18,
@@ -83,33 +83,31 @@ const styles = StyleSheet.create({
   },
   panel: {
     borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "rgba(216, 189, 122, 0.28)",
-    backgroundColor: "#18221d",
+    backgroundColor: "#24312f",
     padding: 18
   },
   appName: {
     fontSize: 24,
     fontWeight: "800",
-    color: "#fff6df"
+    color: "#fffaf0"
   },
   englishName: {
     marginTop: 4,
     fontSize: 14,
     fontWeight: "700",
-    color: "#c7a96c"
+    color: "#c9d8cf"
   },
   appDescription: {
     marginTop: 8,
     fontSize: 15,
     lineHeight: 22,
-    color: "#c4c9ba"
+    color: "#e8eadf"
   },
   list: {
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "rgba(216, 189, 122, 0.2)",
-    backgroundColor: "#151d19",
+    borderColor: "#ebe1d6",
+    backgroundColor: "#fffdf9",
     overflow: "hidden"
   },
   row: {
@@ -120,7 +118,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(216, 189, 122, 0.12)"
+    borderBottomColor: "#f1e7dc"
   },
   rowText: {
     flex: 1,
@@ -129,11 +127,11 @@ const styles = StyleSheet.create({
   rowTitle: {
     fontSize: 16,
     fontWeight: "700",
-    color: "#f5ead6"
+    color: "#202724"
   },
   rowMeta: {
     fontSize: 13,
     lineHeight: 18,
-    color: "#98a092"
+    color: "#68736c"
   }
 });

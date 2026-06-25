@@ -5,7 +5,6 @@ export type BookDraft = {
   title: string;
   author: string;
   summary: string;
-  coverImage?: string;
   content: string;
 };
 
@@ -13,6 +12,6 @@ export type AuthSession = {
   authenticated: boolean;
 };
 
-export type SaveBookInput = Pick<BookDraft, "title" | "author" | "summary" | "coverImage" | "content">;
+export type SaveBookInput = Pick<BookDraft, "title" | "author" | "summary" | "content">;
 
 export type SaveBookResult = Book;

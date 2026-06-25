@@ -230,17 +230,12 @@ export default function ReaderScreen() {
       <View style={styles.topBar}>
         <Link href="/" asChild>
           <Pressable style={styles.iconButton}>
-            <Ionicons name="chevron-back" size={24} color="#efe2c7" />
+            <Ionicons name="chevron-back" size={24} color="#27312d" />
           </Pressable>
         </Link>
-        <View style={styles.titleBlock}>
-          <Text style={styles.bookTitle} numberOfLines={1}>
-            {book.title}
-          </Text>
-          <Text style={styles.bookAuthor} numberOfLines={1}>
-            {book.author}
-          </Text>
-        </View>
+        <Text style={styles.bookTitle} numberOfLines={1}>
+          {book.title}
+        </Text>
         <View style={styles.iconButton} />
       </View>
       <View style={styles.progressTrack}>
@@ -285,7 +280,7 @@ export default function ReaderScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: "#101713"
+    backgroundColor: "#f8f1e7"
   },
   center: {
     flex: 1,
@@ -295,12 +290,10 @@ const styles = StyleSheet.create({
     padding: 24
   },
   topBar: {
-    minHeight: 68,
+    height: 56,
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(214, 187, 132, 0.14)"
+    paddingHorizontal: 12
   },
   iconButton: {
     width: 44,
@@ -308,48 +301,30 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center"
   },
-  titleBlock: {
-    flex: 1,
-    alignItems: "center",
-    gap: 2
-  },
   bookTitle: {
-    maxWidth: "100%",
+    flex: 1,
     textAlign: "center",
-    fontSize: 18,
-    fontWeight: "800",
-    color: "#f5ead6"
-  },
-  bookAuthor: {
-    maxWidth: "100%",
-    textAlign: "center",
-    fontSize: 12,
-    color: "#a8966b"
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#27312d"
   },
   progressTrack: {
     height: 3,
-    backgroundColor: "rgba(214, 187, 132, 0.14)"
+    backgroundColor: "#e6dbca"
   },
   progressFill: {
     height: 3,
-    backgroundColor: "#d8bd7a"
+    backgroundColor: "#53635b"
   },
   readerArea: {
-    flex: 1,
-    paddingHorizontal: 16,
-    paddingTop: 18,
-    paddingBottom: 50
+    flex: 1
   },
   page: {
     flex: 1,
     justifyContent: "center",
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "rgba(216, 189, 122, 0.22)",
-    backgroundColor: "#efe4cf",
-    paddingHorizontal: 24,
-    paddingTop: 28,
-    paddingBottom: 86
+    paddingHorizontal: 28,
+    paddingTop: 20,
+    paddingBottom: 92
   },
   progressLabel: {
     position: "absolute",
@@ -359,7 +334,7 @@ const styles = StyleSheet.create({
     zIndex: 3,
     textAlign: "center",
     fontSize: 12,
-    color: "#9ba392"
+    color: "#8a7f72"
   },
   progressLabelRaised: {
     bottom: 92
@@ -367,7 +342,7 @@ const styles = StyleSheet.create({
   pageText: {
     fontSize: 24,
     lineHeight: 39,
-    color: "#1d251f"
+    color: "#222925"
   },
   tapZoneLeft: {
     position: "absolute",
@@ -406,16 +381,16 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#f5ead6"
+    color: "#27312d"
   },
   backButton: {
     borderRadius: 8,
-    backgroundColor: "#d8bd7a",
+    backgroundColor: "#27312d",
     paddingHorizontal: 16,
     paddingVertical: 10
   },
   backText: {
-    color: "#151b18",
+    color: "#ffffff",
     fontSize: 15,
     fontWeight: "700"
   },
@@ -429,9 +404,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 12,
     borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "rgba(216, 189, 122, 0.28)",
-    backgroundColor: "#18221d",
+    backgroundColor: "#27312d",
     padding: 12,
     shadowColor: "#1f2937",
     shadowOffset: { width: 0, height: 8 },
@@ -442,7 +415,7 @@ const styles = StyleSheet.create({
   finishState: {
     fontSize: 14,
     fontWeight: "800",
-    color: "#f5ead6"
+    color: "#ffffff"
   },
   finishButton: {
     flex: 1,
@@ -450,12 +423,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#d8bd7a",
+    backgroundColor: "#fff7df",
     paddingHorizontal: 12
   },
   finishButtonText: {
     fontSize: 14,
     fontWeight: "800",
-    color: "#151b18"
+    color: "#27312d"
   }
 });

@@ -6,7 +6,6 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const rootDir = join(__dirname, "..");
-const publicDir = join(rootDir, "public");
 const defaultDataPath = join(rootDir, "data", "books.json");
 const dataPath = process.env.DATA_PATH || defaultDataPath;
 const blobPath = process.env.BOOKS_BLOB_PATH || "data/books.json";
@@ -260,89 +259,13 @@ export function validateBookBody(body) {
   const title = String(body.title || "").trim();
   const author = String(body.author || "").trim();
   const summary = String(body.summary || "").trim();
-  const coverImage = String(body.coverImage || "").trim();
   const content = String(body.content || "").trim();
 
   if (!title || !author || !summary || !content) {
     return { error: "书名、作者、简介和内容都需要填写。" };
   }
 
-  return { title, author, summary, coverImage, content };
-}
-
-function safeFilePart(value) {
-  return String(value || "book")
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9\u4e00-\u9fa5]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 48) || "book";
-}
-
-function createCoverPrompt(fields) {
-  return [
-    "Use case: product-mockup",
-    "Asset type: mobile reading app book cover art, portrait 2:3 ratio, 1024 x 1536",
-    "Primary request: Create a premium book cover for the Chinese reading app Reading_APP, matching a Night Salon visual system.",
-    `Book: ${fields.title} by ${fields.author}`,
-    `Summary/theme: ${fields.summary}`,
-    "Style/medium: elegant literary cover, painterly editorial illustration with subtle paper texture, premium app asset.",
-    "Composition/framing: vertical cover, deep ink-black or deep green base, restrained symbolic scene based on the book, thin muted brass frame, refined linework, generous negative space for title.",
-    "Lighting/mood: quiet evening reading lounge, literary, polished, humane, restrained.",
-    "Color palette: ink black, very deep green, warm parchment, muted brass, soft gray-green, one subtle accent only if needed.",
-    "Materials/textures: matte clothbound book cover texture, fine grain, restrained vintage print feel.",
-    `Text (verbatim): "${fields.title.replace(/[《》]/g, "")}" and smaller "${fields.author}". Render Chinese text cleanly and legibly, no extra words.`,
-    "Constraints: no device frame, no mockup perspective, no barcode, no publisher logos, no watermark. Keep the cover readable as a small thumbnail in a mobile app. Avoid clutter, avoid cartoon style, avoid photoreal stock imagery."
-  ].join("\n");
-}
-
-async function generateCoverImage(fields) {
-  if (fields.coverImage || !process.env.OPENAI_API_KEY) {
-    return fields.coverImage || "";
-  }
-
-  const response = await fetch("https://api.openai.com/v1/images/generations", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      model: process.env.COVER_IMAGE_MODEL || "gpt-image-2",
-      prompt: createCoverPrompt(fields),
-      size: "1024x1536",
-      quality: process.env.COVER_IMAGE_QUALITY || "medium",
-      n: 1
-    })
-  });
-
-  const payload = await response.json().catch(() => ({}));
-
-  if (!response.ok) {
-    throw new Error(payload.error?.message || "封面生成失败。");
-  }
-
-  const base64 = payload.data?.[0]?.b64_json;
-
-  if (!base64) {
-    throw new Error("封面生成失败。");
-  }
-
-  const buffer = Buffer.from(base64, "base64");
-  const fileName = `${safeFilePart(fields.title)}-${Date.now()}.png`;
-
-  if (process.env.BLOB_READ_WRITE_TOKEN) {
-    const result = await put(`covers/${fileName}`, buffer, {
-      access: "public",
-      contentType: "image/png",
-      allowOverwrite: true
-    });
-    return result.url;
-  }
-
-  await mkdir(join(publicDir, "covers"), { recursive: true });
-  await writeFile(join(publicDir, "covers", fileName), buffer);
-  return `/covers/${fileName}`;
+  return { title, author, summary, content };
 }
 
 function createDraft(fields, id = null) {
@@ -353,7 +276,6 @@ function createDraft(fields, id = null) {
     title: fields.title,
     author: fields.author,
     summary: fields.summary,
-    coverImage: fields.coverImage || "",
     content: fields.content,
     createdAt: now,
     updatedAt: now
@@ -368,7 +290,6 @@ function draftToBook(draft, existingBook = null) {
     title: draft.title,
     author: draft.author,
     summary: draft.summary,
-    coverImage: draft.coverImage || "",
     sections: parseSections(draft.content),
     createdAt: existingBook?.createdAt || draft.createdAt || now,
     updatedAt: now
@@ -432,7 +353,6 @@ export async function handleApiRequest(req, res, pathname) {
       title: fields.title,
       author: fields.author,
       summary: fields.summary,
-      coverImage: await generateCoverImage(fields),
       sections: parseSections(fields.content),
       createdAt: now,
       updatedAt: now
@@ -456,10 +376,7 @@ export async function handleApiRequest(req, res, pathname) {
     }
 
     const current = await readBooks();
-    const draft = createDraft({
-      ...fields,
-      coverImage: await generateCoverImage(fields)
-    });
+    const draft = createDraft(fields);
     await writeBooks({ ...current, drafts: [draft, ...current.drafts] });
     sendJson(res, 201, draft);
     return true;
@@ -493,7 +410,6 @@ export async function handleApiRequest(req, res, pathname) {
       title: fields.title,
       author: fields.author,
       summary: fields.summary,
-      coverImage: fields.coverImage || existing.coverImage || (await generateCoverImage(fields)),
       sections: parseSections(fields.content),
       updatedAt: new Date().toISOString()
     };
@@ -549,7 +465,6 @@ export async function handleApiRequest(req, res, pathname) {
       title: fields.title,
       author: fields.author,
       summary: fields.summary,
-      coverImage: fields.coverImage || existing.coverImage || (await generateCoverImage(fields)),
       content: fields.content,
       updatedAt: new Date().toISOString()
     };
