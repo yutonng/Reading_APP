@@ -8,6 +8,7 @@ export type Book = {
   title: string;
   author: string;
   summary: string;
+  coverImage?: string;
   sections: BookSection[];
   createdAt: string;
   updatedAt: string;

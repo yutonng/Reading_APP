@@ -28,6 +28,12 @@ const server = createServer(async (req, res) => {
         ? "text/css; charset=utf-8"
         : fileName.endsWith(".js")
           ? "text/javascript; charset=utf-8"
+          : fileName.endsWith(".png")
+            ? "image/png"
+            : fileName.endsWith(".jpg") || fileName.endsWith(".jpeg")
+              ? "image/jpeg"
+              : fileName.endsWith(".webp")
+                ? "image/webp"
           : "text/html; charset=utf-8";
       res.writeHead(200, { "Content-Type": contentType });
       res.end(content);

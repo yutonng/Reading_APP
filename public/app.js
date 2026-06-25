@@ -65,6 +65,7 @@ function emptyDraft() {
     title: "",
     author: "",
     summary: "",
+    coverImage: "",
     content: ""
   };
 }
@@ -76,6 +77,7 @@ function bookToDraft(book, source = "book") {
     title: book.title,
     author: book.author,
     summary: book.summary,
+    coverImage: book.coverImage || "",
     content: book.sections.map((section) => section.text).join("\n\n")
   };
 }
@@ -87,6 +89,7 @@ function savedDraftToDraft(draft) {
     title: draft.title,
     author: draft.author,
     summary: draft.summary,
+    coverImage: draft.coverImage || "",
     content: draft.content
   };
 }
@@ -117,6 +120,7 @@ function formToDraft(form) {
     title: String(data.title || "").trim(),
     author: String(data.author || "").trim(),
     summary: String(data.summary || "").trim(),
+    coverImage: String(data.coverImage || "").trim(),
     content: String(data.content || "").trim()
   };
 }
@@ -127,6 +131,7 @@ function draftToPreviewBook(draft) {
     title: draft.title || "未命名书籍",
     author: draft.author || "未填写作者",
     summary: draft.summary || "",
+    coverImage: draft.coverImage || "",
     sections: parseDraftSections(draft.content),
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
@@ -184,26 +189,44 @@ function showToast(message) {
   toastTimer = setTimeout(() => toast.classList.remove("visible"), 1100);
 }
 
+function renderCover(book, className = "book-cover") {
+  if (book.coverImage) {
+    return `<img class="${className}" src="${escapeAttribute(book.coverImage)}" alt="${escapeAttribute(book.title)}封面" />`;
+  }
+
+  return `<span class="${className} cover-fallback">${escapeHtml(book.title.replace(/[《》]/g, ""))}</span>`;
+}
+
 function renderList() {
   const lastRead = findLastReadBook();
+  const featured = lastRead || (books[0] ? { book: books[0], progress: getBookProgress(books[0]) } : null);
+  const featuredPercent = featured
+    ? Math.round(((featured.progress.page + 1) / featured.book.sections.length) * 100)
+    : 0;
 
   app.innerHTML = `
-    <section class="shell">
+    <section class="shell home-shell">
       <header class="bar">
         <span class="bar-spacer"></span>
-        <h1>首页</h1>
         <a class="icon-btn" href="/privacy" title="隐私政策">${icon("ⓘ")}</a>
       </header>
+      <section class="home-intro">
+        <h1>书库</h1>
+        <p>夜色静好，书页生香。</p>
+      </section>
       ${
-        lastRead
+        featured
           ? `
-            <section class="continue">
-              <div>
+            <section class="continue" id="continue-reading" role="button" tabindex="0">
+              ${renderCover(featured.book, "continue-cover")}
+              <div class="continue-copy">
                 <span class="eyebrow">继续阅读</span>
-                <h2>${escapeHtml(lastRead.book.title)}</h2>
-                <p>${escapeHtml(lastRead.book.author)} · ${lastRead.progress.page + 1} / ${lastRead.book.sections.length}</p>
+                <h2>${escapeHtml(featured.book.title)}</h2>
+                <p>${escapeHtml(featured.book.author)}</p>
+                <p>已读 ${featuredPercent}% · 第 ${featured.progress.page + 1} / ${featured.book.sections.length} 页</p>
+                <div class="inline-progress"><span style="width: ${featuredPercent}%"></span></div>
+                <p class="quote">${escapeHtml(featured.book.summary.replace(/[“”]/g, ""))}</p>
               </div>
-              <button class="primary-action" id="continue-reading">继续</button>
             </section>
           `
           : ""
@@ -217,12 +240,17 @@ function renderList() {
                     const progress = getBookProgress(book);
                     return `
                     <button class="book" data-book-id="${book.id}">
+                      ${renderCover(book)}
                       <span>
                         <h2>${escapeHtml(book.title)}</h2>
-                        <p class="meta">${escapeHtml(book.author)} · ${book.sections.length} 页${
-                          progress.isStarted ? ` · 已读 ${progress.page + 1}` : ""
-                        }</p>
+                        <p class="meta">${escapeHtml(book.author)} · ${book.sections.length} 页</p>
                         <p>${escapeHtml(book.summary)}</p>
+                        <p class="progress-label">已读 ${Math.round(
+                          ((progress.page + 1) / book.sections.length) * 100
+                        )}% · 第 ${progress.page + 1} / ${book.sections.length} 页</p>
+                        <div class="row-progress"><span style="width: ${Math.round(
+                          ((progress.page + 1) / book.sections.length) * 100
+                        )}%"></span></div>
                       </span>
                       <span aria-hidden="true">›</span>
                     </button>
@@ -239,10 +267,20 @@ function renderList() {
   document.querySelector("#continue-reading")?.addEventListener("click", () =>
     setRoute({
       name: "reader",
-      id: lastRead.book.id,
-      page: lastRead.progress.page
+      id: featured.book.id,
+      page: featured.progress.page
     })
   );
+  document.querySelector("#continue-reading")?.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      setRoute({
+        name: "reader",
+        id: featured.book.id,
+        page: featured.progress.page
+      });
+    }
+  });
   document.querySelectorAll("[data-book-id]").forEach((node) => {
     node.addEventListener("click", () => {
       const book = books.find((item) => item.id === node.getAttribute("data-book-id"));
@@ -461,6 +499,7 @@ function renderAdmin() {
                     .map(
                       (draft) => `
                         <article class="admin-book">
+                          ${renderCover(draft, "admin-cover")}
                           <div>
                             <h3>${escapeHtml(draft.title)}</h3>
                             <p>${escapeHtml(draft.author)} · ${countPages(draft.content)} 页</p>
@@ -491,6 +530,7 @@ function renderAdmin() {
                     .map(
                       (book) => `
                         <article class="admin-book">
+                          ${renderCover(book, "admin-cover")}
                           <div>
                             <h3>${escapeHtml(book.title)}</h3>
                             <p>${escapeHtml(book.author)} · ${book.sections.length} 页</p>
@@ -519,6 +559,20 @@ function renderAdmin() {
         <div class="field">
           <label for="summary">一句话简介</label>
           <input id="summary" name="summary" placeholder="用一句话说明这本书" value="${escapeAttribute(adminDraft.summary)}" required />
+        </div>
+        <input type="hidden" id="coverImage" name="coverImage" value="${escapeAttribute(adminDraft.coverImage || "")}" />
+        <div class="cover-field">
+          ${renderCover(
+            {
+              title: adminDraft.title || "新书封面",
+              coverImage: adminDraft.coverImage
+            },
+            "form-cover"
+          )}
+          <div>
+            <label>封面</label>
+            <p>${adminDraft.coverImage ? "已生成封面，保存和发布时会一并带上。" : "保存到待审核时会自动生成封面。"}</p>
+          </div>
         </div>
         <div class="field">
           <div class="label-row">
@@ -691,6 +745,7 @@ function renderAdmin() {
       title: adminDraft.title,
       author: adminDraft.author,
       summary: adminDraft.summary,
+      coverImage: adminDraft.coverImage,
       content: adminDraft.content
     };
     const wasEditingPublished = Boolean(adminDraft.id && adminDraft.source === "book");
@@ -729,7 +784,9 @@ function renderAdmin() {
       ? "正式书籍已保存。"
       : wasEditingDraft
         ? "草稿已保存，发布后用户侧可见。"
-        : "已保存到待审核，发布后用户侧可见。";
+        : saved?.coverImage
+          ? "已保存到待审核，封面也已生成。"
+          : "已保存到待审核。配置 OPENAI_API_KEY 后会自动生成封面。";
     renderAdmin();
   });
 }

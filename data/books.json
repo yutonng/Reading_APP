@@ -248,7 +248,8 @@
         }
       ],
       "createdAt": "2026-05-31T05:44:33.020Z",
-      "updatedAt": "2026-05-31T05:45:10.055Z"
+      "updatedAt": "2026-05-31T05:45:10.055Z",
+      "coverImage": "/covers/walden.png"
     },
     {
       "id": "呼兰河传-1780206214438",
@@ -790,7 +791,8 @@
         }
       ],
       "createdAt": "2026-05-31T05:43:34.438Z",
-      "updatedAt": "2026-05-31T05:45:52.139Z"
+      "updatedAt": "2026-05-31T05:45:52.139Z",
+      "coverImage": "/covers/hulan-river.png"
     },
     {
       "id": "围城-1780206139927",
@@ -932,7 +934,8 @@
         }
       ],
       "createdAt": "2026-05-31T05:42:19.926Z",
-      "updatedAt": "2026-05-31T05:42:19.926Z"
+      "updatedAt": "2026-05-31T05:42:19.926Z",
+      "coverImage": "/covers/fortress-besieged.png"
     },
     {
       "id": "book-001",
@@ -1102,7 +1105,8 @@
         }
       ],
       "createdAt": "2026-05-29T00:00:00.000Z",
-      "updatedAt": "2026-05-31T05:43:42.839Z"
+      "updatedAt": "2026-05-31T05:43:42.839Z",
+      "coverImage": "/covers/to-live.png"
     }
   ],
   "drafts": []
