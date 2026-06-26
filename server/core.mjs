@@ -255,10 +255,39 @@ export function getDraftIdFromPath(pathname) {
   return match ? decodeURIComponent(match[1]) : null;
 }
 
+export function normalizeBookTitle(value) {
+  const title = String(value || "").trim();
+
+  if (!title) {
+    return "";
+  }
+
+  const unwrapped = title.replace(/^《+/, "").replace(/》+$/, "").trim();
+  return `《${unwrapped || title}》`;
+}
+
+export function normalizeSoulSentence(value) {
+  const sentence = String(value || "").trim();
+
+  if (!sentence) {
+    return "";
+  }
+
+  if (
+    (sentence.startsWith("“") && sentence.endsWith("”")) ||
+    (sentence.startsWith('"') && sentence.endsWith('"'))
+  ) {
+    return sentence;
+  }
+
+  const unwrapped = sentence.replace(/^[“"]+/, "").replace(/[”"]+$/, "").trim();
+  return `“${unwrapped || sentence}”`;
+}
+
 export function validateBookBody(body) {
-  const title = String(body.title || "").trim();
+  const title = normalizeBookTitle(body.title);
   const author = String(body.author || "").trim();
-  const summary = String(body.summary || "").trim();
+  const summary = normalizeSoulSentence(body.summary);
   const content = String(body.content || "").trim();
 
   if (!title || !author || !summary || !content) {

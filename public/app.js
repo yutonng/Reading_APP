@@ -124,14 +124,43 @@ function parseDraftSections(content) {
     }));
 }
 
+function normalizeBookTitle(value) {
+  const title = String(value || "").trim();
+
+  if (!title) {
+    return "";
+  }
+
+  const unwrapped = title.replace(/^《+/, "").replace(/》+$/, "").trim();
+  return `《${unwrapped || title}》`;
+}
+
+function normalizeSoulSentence(value) {
+  const sentence = String(value || "").trim();
+
+  if (!sentence) {
+    return "";
+  }
+
+  if (
+    (sentence.startsWith("“") && sentence.endsWith("”")) ||
+    (sentence.startsWith('"') && sentence.endsWith('"'))
+  ) {
+    return sentence;
+  }
+
+  const unwrapped = sentence.replace(/^[“"]+/, "").replace(/[”"]+$/, "").trim();
+  return `“${unwrapped || sentence}”`;
+}
+
 function formToDraft(form) {
   const data = Object.fromEntries(new FormData(form).entries());
   return {
     id: adminDraft.id,
     source: adminDraft.source || "draft",
-    title: String(data.title || "").trim(),
+    title: normalizeBookTitle(data.title),
     author: String(data.author || "").trim(),
-    summary: String(data.summary || "").trim(),
+    summary: normalizeSoulSentence(data.summary),
     content: String(data.content || "").trim()
   };
 }
@@ -599,10 +628,13 @@ function renderAdmin() {
         <p class="message" id="message">${escapeHtml(adminMessage)}</p>
       </form>
       </section>
+      <div class="toast" id="toast"></div>
     </section>
   `;
 
   const form = document.querySelector("#book-form");
+  const title = document.querySelector("#title");
+  const summary = document.querySelector("#summary");
   const content = document.querySelector("#content");
   const pageCountNode = document.querySelector("#page-count");
 
@@ -637,30 +669,41 @@ function renderAdmin() {
   document.querySelectorAll("[data-draft-publish-id]").forEach((node) => {
     node.addEventListener("click", async () => {
       const draft = drafts.find((item) => item.id === node.getAttribute("data-draft-publish-id"));
-      if (!draft || !confirm(`发布《${draft.title}》？发布后用户侧即可阅读。`)) {
+      if (!draft || !confirm(`发布${normalizeBookTitle(draft.title)}？发布后用户侧即可阅读。`)) {
         return;
       }
 
-      const response = await fetch(`/drafts/${encodeURIComponent(draft.id)}`, {
-        method: "POST"
-      });
+      node.disabled = true;
+      node.textContent = "发布中";
 
-      if (!response.ok) {
-        if (response.status === 401) {
-          isAdminAuthenticated = false;
-          renderLogin();
-          return;
+      try {
+        const response = await fetch(`/drafts/${encodeURIComponent(draft.id)}`, {
+          method: "POST"
+        });
+
+        if (!response.ok) {
+          if (response.status === 401) {
+            isAdminAuthenticated = false;
+            renderLogin();
+            return;
+          }
+
+          const payload = await response.json().catch(() => ({}));
+          throw new Error(payload.error || "发布失败。");
         }
-        alert("发布失败。");
-        return;
-      }
 
-      if (adminDraft.id === draft.id && adminDraft.source === "draft") {
-        adminDraft = emptyDraft();
+        if (adminDraft.id === draft.id && adminDraft.source === "draft") {
+          adminDraft = emptyDraft();
+        }
+        adminMessage = `${normalizeBookTitle(draft.title)}发布成功，用户侧现在可以阅读。`;
+        await Promise.all([loadBooks(), loadDrafts()]);
+        renderAdmin();
+        showToast("发布成功。");
+      } catch (error) {
+        adminMessage = error.message || "发布失败。";
+        renderAdmin();
+        showToast(adminMessage);
       }
-      adminMessage = "已发布。用户侧现在可以阅读。";
-      await Promise.all([loadBooks(), loadDrafts()]);
-      renderAdmin();
     });
   });
   document.querySelectorAll("[data-draft-delete-id]").forEach((node) => {
@@ -735,6 +778,12 @@ function renderAdmin() {
   content.addEventListener("input", () => {
     adminDraft.content = content.value;
     pageCountNode.textContent = `${countPages(content.value)} 页`;
+  });
+  title.addEventListener("blur", () => {
+    title.value = normalizeBookTitle(title.value);
+  });
+  summary.addEventListener("blur", () => {
+    summary.value = normalizeSoulSentence(summary.value);
   });
   document.querySelector("#preview-reading").addEventListener("click", () => {
     adminDraft = formToDraft(form);

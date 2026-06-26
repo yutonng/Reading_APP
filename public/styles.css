@@ -490,6 +490,11 @@ textarea {
   background: #faf7f0;
 }
 
+.small-btn:disabled {
+  cursor: wait;
+  opacity: 0.68;
+}
+
 .small-btn.danger {
   border-color: #edc6c1;
   color: var(--danger);
