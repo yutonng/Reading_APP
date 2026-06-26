@@ -9,6 +9,23 @@ export type BooksLoadResult = {
   source: "remote" | "fallback";
 };
 
+function normalizeBooksPayload(payload: unknown): Book[] {
+  if (Array.isArray(payload)) {
+    return payload as Book[];
+  }
+
+  if (
+    payload &&
+    typeof payload === "object" &&
+    "books" in payload &&
+    Array.isArray((payload as BooksPayload).books)
+  ) {
+    return (payload as BooksPayload).books;
+  }
+
+  return [];
+}
+
 async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${getApiBaseUrl()}${path}`, {
     ...init,
@@ -34,9 +51,15 @@ export async function loadBooks(): Promise<Book[]> {
 export async function loadBooksWithStatus(): Promise<BooksLoadResult> {
   try {
     const payload = await requestJson<BooksPayload>("/books");
-    return { books: payload.books, source: "remote" };
+    const books = normalizeBooksPayload(payload);
+
+    if (books.length > 0) {
+      return { books, source: "remote" };
+    }
+
+    return { books: normalizeBooksPayload(fallbackPayload), source: "fallback" };
   } catch {
-    return { books: fallbackPayload.books, source: "fallback" };
+    return { books: normalizeBooksPayload(fallbackPayload), source: "fallback" };
   }
 }
 

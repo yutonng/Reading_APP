@@ -26,7 +26,7 @@ export function getBookProgress(book: Book, progress: ReadingProgressMap) {
   };
 }
 
-export function findLastReadBook(books: Book[], progress: ReadingProgressMap) {
+export function findLastReadBook(books: Book[] = [], progress: ReadingProgressMap = {}) {
   return books
     .map((book) => ({
       book,

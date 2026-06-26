@@ -13,7 +13,7 @@
       "backgroundColor": "#f8f1e7"
     },
     "android": {
-      "package": "com.yutong.readingapp",
+      "package": "com.relaxreading.app",
       "versionCode": 1,
       "permissions": [
         "INTERNET"

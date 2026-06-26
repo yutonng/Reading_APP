@@ -1,3 +1,5 @@
+import { Platform } from "react-native";
+
 const fallbackApiUrl = "https://reading-app-sigma.vercel.app";
 
 export function getApiBaseUrl() {
@@ -7,7 +9,7 @@ export function getApiBaseUrl() {
     return configuredUrl.replace(/\/$/, "");
   }
 
-  if (typeof window !== "undefined" && window.location?.origin) {
+  if (Platform.OS === "web" && typeof window !== "undefined" && window.location?.origin) {
     return window.location.origin;
   }
 
