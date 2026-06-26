@@ -19,6 +19,8 @@ let adminMessage = "";
 let previewBook = null;
 let toastTimer = null;
 let isAdminAuthenticated = false;
+let isSearchOpen = false;
+let searchQuery = "";
 
 async function loadBooks() {
   const response = await fetch("/books");
@@ -54,8 +56,21 @@ function setRoute(nextRoute) {
   render();
 }
 
-function icon(label) {
-  return `<span aria-hidden="true">${label}</span>`;
+function icon(name) {
+  const icons = {
+    search:
+      '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.35-4.35"/><circle cx="11" cy="11" r="6"/></svg>',
+    info:
+      '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 10v6"/><path d="M12 7.5h.01"/></svg>',
+    close:
+      '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>',
+    back:
+      '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>',
+    plus:
+      '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg>'
+  };
+
+  return icons[name] || "";
 }
 
 function emptyDraft() {
@@ -172,6 +187,18 @@ function findLastReadBook() {
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0];
 }
 
+function getVisibleBooks() {
+  const query = searchQuery.trim().toLowerCase();
+
+  if (!query) {
+    return books;
+  }
+
+  return books.filter((book) =>
+    [book.title, book.author, book.summary].some((value) => value.toLowerCase().includes(query))
+  );
+}
+
 function showToast(message) {
   const toast = document.querySelector("#toast");
   if (!toast) {
@@ -186,16 +213,36 @@ function showToast(message) {
 
 function renderList() {
   const lastRead = findLastReadBook();
+  const visibleBooks = getVisibleBooks();
+  const isSearching = Boolean(searchQuery.trim());
 
   app.innerHTML = `
     <section class="shell">
       <header class="bar">
         <span class="bar-spacer"></span>
-        <h1>首页</h1>
-        <a class="icon-btn" href="/privacy" title="隐私政策">${icon("ⓘ")}</a>
+        <h1>书库</h1>
+        <div class="bar-actions">
+          <button class="icon-btn" id="toggle-search" title="${isSearchOpen ? "关闭搜索" : "搜索"}">${icon(isSearchOpen ? "close" : "search")}</button>
+          <a class="icon-btn" href="/privacy" title="隐私政策">${icon("info")}</a>
+        </div>
       </header>
       ${
-        lastRead
+        isSearchOpen
+          ? `
+            <div class="search-panel">
+              ${icon("search")}
+              <input id="search-input" placeholder="搜索书名、作者或灵魂句" value="${escapeAttribute(searchQuery)}" />
+              ${
+                searchQuery
+                  ? `<button class="search-clear" id="clear-search" title="清空搜索" type="button">${icon("close")}</button>`
+                  : ""
+              }
+            </div>
+          `
+          : ""
+      }
+      ${
+        lastRead && !isSearching
           ? `
             <section class="continue">
               <div>
@@ -210,8 +257,8 @@ function renderList() {
       }
       <div class="list">
         ${
-          books.length
-            ? books
+          visibleBooks.length
+            ? visibleBooks
                 .map(
                   (book) => {
                     const progress = getBookProgress(book);
@@ -232,12 +279,28 @@ function renderList() {
                   }
                 )
                 .join("")
-            : `<p class="empty">还没有书。</p>`
+            : `<p class="empty">${isSearching ? "没有找到匹配的书。" : "还没有书。"}</p>`
         }
       </div>
     </section>
   `;
 
+  document.querySelector("#toggle-search")?.addEventListener("click", () => {
+    isSearchOpen = !isSearchOpen;
+    if (!isSearchOpen) {
+      searchQuery = "";
+    }
+    renderList();
+  });
+  document.querySelector("#search-input")?.addEventListener("input", (event) => {
+    searchQuery = event.currentTarget.value;
+    renderList();
+  });
+  document.querySelector("#search-input")?.focus();
+  document.querySelector("#clear-search")?.addEventListener("click", () => {
+    searchQuery = "";
+    renderList();
+  });
   document.querySelector("#continue-reading")?.addEventListener("click", () =>
     setRoute({
       name: "reader",
@@ -258,7 +321,7 @@ function renderPrivacy() {
   app.innerHTML = `
     <section class="shell">
       <header class="bar">
-        <button class="icon-btn" id="privacy-back" title="返回">${icon("‹")}</button>
+        <button class="icon-btn" id="privacy-back" title="返回">${icon("back")}</button>
         <h1>隐私政策</h1>
         <span class="bar-spacer"></span>
       </header>
@@ -301,7 +364,7 @@ function renderLogin() {
   app.innerHTML = `
     <section class="shell">
       <header class="bar">
-        <button class="icon-btn" id="back" title="返回">${icon("‹")}</button>
+        <button class="icon-btn" id="back" title="返回">${icon("back")}</button>
         <h1>后台登录</h1>
         <span class="bar-spacer"></span>
       </header>
@@ -367,7 +430,7 @@ function renderReader() {
   app.innerHTML = `
     <section class="reader">
       <header class="bar">
-        <button class="icon-btn" id="back" title="返回">${icon("‹")}</button>
+        <button class="icon-btn" id="back" title="返回">${icon("back")}</button>
         <h1>${escapeHtml(book.title)}</h1>
         <span class="bar-spacer"></span>
       </header>
@@ -446,9 +509,9 @@ function renderAdmin() {
   app.innerHTML = `
     <section class="shell">
       <header class="bar">
-        <button class="icon-btn" id="back" title="返回">${icon("‹")}</button>
+        <button class="icon-btn" id="back" title="返回">${icon("back")}</button>
         <h1>${isEditingPublished ? "编辑书籍" : isEditingDraft ? "编辑草稿" : "后台上传"}</h1>
-        <button class="icon-btn" id="new-book" title="新建">${icon("+")}</button>
+        <button class="icon-btn" id="new-book" title="新建">${icon("plus")}</button>
       </header>
       <section class="manager">
         <div class="library-panel">

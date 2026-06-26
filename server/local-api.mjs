@@ -20,6 +20,12 @@ const server = createServer(async (req, res) => {
     }
 
     if (req.method === "GET") {
+      if (url.pathname === "/favicon.ico") {
+        res.writeHead(204);
+        res.end();
+        return;
+      }
+
       const requestedName = url.pathname === "/" ? "index.html" : url.pathname.slice(1);
       const fileName = requestedName.includes(".") ? requestedName : "index.html";
       const filePath = join(publicDir, fileName);

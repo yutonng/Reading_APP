@@ -7,6 +7,7 @@ import {
   Pressable,
   StyleSheet,
   Text,
+  TextInput,
   View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -22,6 +23,8 @@ export default function BookListScreen() {
   const [progress, setProgress] = useState<ReadingProgressMap>({});
   const [isLoading, setIsLoading] = useState(true);
   const [isUsingFallbackBooks, setIsUsingFallbackBooks] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const refresh = useCallback(async () => {
     setIsLoading(true);
@@ -42,18 +45,63 @@ export default function BookListScreen() {
   );
 
   const lastRead = useMemo(() => findLastReadBook(books, progress), [books, progress]);
+  const normalizedSearchQuery = searchQuery.trim().toLowerCase();
+  const filteredBooks = useMemo(() => {
+    if (!normalizedSearchQuery) {
+      return books;
+    }
+
+    return books.filter((book) =>
+      [book.title, book.author, book.summary].some((value) =>
+        value.toLowerCase().includes(normalizedSearchQuery)
+      )
+    );
+  }, [books, normalizedSearchQuery]);
 
   return (
     <SafeAreaView style={styles.screen} edges={["top", "bottom"]}>
       <View style={styles.header}>
-        <View style={styles.iconButton} />
+        <View style={styles.headerSide} />
         <Text style={styles.title}>书库</Text>
-        <Link href="/settings" asChild>
-          <Pressable style={styles.iconButton}>
-            <Ionicons name="settings-outline" size={22} color="#202724" />
+        <View style={styles.headerActions}>
+          <Pressable
+            accessibilityLabel={isSearchOpen ? "关闭搜索" : "搜索书籍"}
+            style={styles.iconButton}
+            onPress={() => {
+              setIsSearchOpen((value) => !value);
+              if (isSearchOpen) {
+                setSearchQuery("");
+              }
+            }}
+          >
+            <Ionicons name={isSearchOpen ? "close" : "search-outline"} size={22} color="#1c1917" />
           </Pressable>
-        </Link>
+          <Link href="/settings" asChild>
+            <Pressable style={styles.iconButton}>
+              <Ionicons name="settings-outline" size={22} color="#1c1917" />
+            </Pressable>
+          </Link>
+        </View>
       </View>
+      {isSearchOpen ? (
+        <View style={styles.searchPanel}>
+          <Ionicons name="search-outline" size={18} color="#5f5a54" />
+          <TextInput
+            autoFocus
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            placeholder="搜索书名、作者或灵魂句"
+            placeholderTextColor="#8a8074"
+            returnKeyType="search"
+            style={styles.searchInput}
+          />
+          {searchQuery ? (
+            <Pressable accessibilityLabel="清空搜索" style={styles.searchClear} onPress={() => setSearchQuery("")}>
+              <Ionicons name="close-circle" size={18} color="#8a8074" />
+            </Pressable>
+          ) : null}
+        </View>
+      ) : null}
 
       {isLoading ? (
         <View style={styles.center}>
@@ -61,7 +109,7 @@ export default function BookListScreen() {
         </View>
       ) : (
         <FlatList
-          data={books}
+          data={filteredBooks}
           keyExtractor={(item) => item.id}
           ListHeaderComponent={
             <>
@@ -72,7 +120,7 @@ export default function BookListScreen() {
                 </View>
               ) : null}
 
-              {lastRead ? (
+              {lastRead && !normalizedSearchQuery ? (
                 <View style={styles.continuePanel}>
                   <View style={styles.continueCopy}>
                     <Text style={styles.eyebrow}>上次阅读</Text>
@@ -97,7 +145,9 @@ export default function BookListScreen() {
               ) : null}
             </>
           }
-          ListEmptyComponent={<Text style={styles.empty}>还没有书。</Text>}
+          ListEmptyComponent={
+            <Text style={styles.empty}>{normalizedSearchQuery ? "没有找到匹配的书。" : "还没有书。"}</Text>
+          }
           contentContainerStyle={styles.list}
           renderItem={({ item }) => (
             <BookRow
@@ -156,7 +206,7 @@ function BookRow({
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: "#f5f2ed"
+    backgroundColor: "#f7f6f2"
   },
   header: {
     height: 56,
@@ -165,8 +215,8 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#e8dfd3",
-    backgroundColor: "#fbfaf7"
+    borderBottomColor: "#d8d2c8",
+    backgroundColor: "#ffffff"
   },
   iconButton: {
     width: 40,
@@ -174,10 +224,42 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center"
   },
+  headerSide: {
+    width: 80
+  },
+  headerActions: {
+    width: 80,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-end"
+  },
   title: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#202724"
+    color: "#0c0a09"
+  },
+  searchPanel: {
+    minHeight: 48,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    paddingHorizontal: 18,
+    borderBottomWidth: 1,
+    borderBottomColor: "#d8d2c8",
+    backgroundColor: "#ffffff"
+  },
+  searchInput: {
+    flex: 1,
+    minHeight: 42,
+    paddingVertical: 8,
+    fontSize: 15,
+    color: "#0c0a09"
+  },
+  searchClear: {
+    width: 32,
+    height: 32,
+    alignItems: "center",
+    justifyContent: "center"
   },
   center: {
     flex: 1,
@@ -212,9 +294,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 16,
     borderRadius: 8,
-    backgroundColor: "#24312f",
+    backgroundColor: "#1c1917",
     padding: 18,
-    shadowColor: "#1f2937",
+    shadowColor: "#1c1917",
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.12,
     shadowRadius: 18,
@@ -227,7 +309,7 @@ const styles = StyleSheet.create({
   eyebrow: {
     fontSize: 12,
     fontWeight: "700",
-    color: "#c9d8cf"
+    color: "#d6ad60"
   },
   continueTitle: {
     fontSize: 22,
@@ -236,7 +318,7 @@ const styles = StyleSheet.create({
   },
   continueMeta: {
     fontSize: 14,
-    color: "#e8eadf"
+    color: "#d6d3d1"
   },
   continueButton: {
     minWidth: 72,
@@ -244,12 +326,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#fff7df"
+    backgroundColor: "#a16207"
   },
   continueButtonText: {
     fontSize: 15,
     fontWeight: "800",
-    color: "#24312f"
+    color: "#ffffff"
   },
   bookRow: {
     position: "relative",
@@ -259,13 +341,13 @@ const styles = StyleSheet.create({
     gap: 12,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#ebe1d6",
-    backgroundColor: "#fffdf9",
+    borderColor: "#d8d2c8",
+    backgroundColor: "#ffffff",
     paddingHorizontal: 14,
     paddingVertical: 12,
-    shadowColor: "#6b5f51",
+    shadowColor: "#1c1917",
     shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.06,
+    shadowOpacity: 0.045,
     shadowRadius: 12,
     elevation: 1,
     overflow: "hidden"
@@ -276,11 +358,11 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     height: 3,
-    backgroundColor: "rgba(83, 99, 91, 0.14)"
+    backgroundColor: "rgba(161, 98, 7, 0.12)"
   },
   bookProgressFill: {
     height: "100%",
-    backgroundColor: "#53635b"
+    backgroundColor: "#a16207"
   },
   bookText: {
     flex: 1,
@@ -295,18 +377,18 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 18,
     fontWeight: "700",
-    color: "#202724"
+    color: "#0c0a09"
   },
   bookMeta: {
     maxWidth: "46%",
     flexShrink: 0,
     fontSize: 13,
-    color: "#68736c"
+    color: "#5f5a54"
   },
   summary: {
     fontSize: 14,
     lineHeight: 20,
-    color: "#454f49"
+    color: "#3f3a34"
   },
   empty: {
     paddingVertical: 48,

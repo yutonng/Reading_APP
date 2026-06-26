@@ -280,7 +280,7 @@ export default function ReaderScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: "#f8f1e7"
+    backgroundColor: "#fafaf9"
   },
   center: {
     flex: 1,
@@ -306,15 +306,15 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 20,
     fontWeight: "700",
-    color: "#27312d"
+    color: "#0c0a09"
   },
   progressTrack: {
     height: 3,
-    backgroundColor: "#e6dbca"
+    backgroundColor: "#e7e5e4"
   },
   progressFill: {
     height: 3,
-    backgroundColor: "#53635b"
+    backgroundColor: "#a16207"
   },
   readerArea: {
     flex: 1
@@ -334,7 +334,7 @@ const styles = StyleSheet.create({
     zIndex: 3,
     textAlign: "center",
     fontSize: 12,
-    color: "#8a7f72"
+    color: "#7c756d"
   },
   progressLabelRaised: {
     bottom: 92
@@ -342,7 +342,7 @@ const styles = StyleSheet.create({
   pageText: {
     fontSize: 24,
     lineHeight: 39,
-    color: "#222925"
+    color: "#0c0a09"
   },
   tapZoneLeft: {
     position: "absolute",
@@ -366,26 +366,26 @@ const styles = StyleSheet.create({
     bottom: 0,
     width: "64%",
     zIndex: 5,
-    backgroundColor: "rgba(39, 49, 45, 0.065)"
+    backgroundColor: "rgba(28, 25, 23, 0.055)"
   },
   turnOverlayNext: {
     right: 0,
     borderLeftWidth: 1,
-    borderLeftColor: "rgba(39, 49, 45, 0.08)"
+    borderLeftColor: "rgba(28, 25, 23, 0.08)"
   },
   turnOverlayPrevious: {
     left: 0,
     borderRightWidth: 1,
-    borderRightColor: "rgba(39, 49, 45, 0.08)"
+    borderRightColor: "rgba(28, 25, 23, 0.08)"
   },
   emptyTitle: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#27312d"
+    color: "#0c0a09"
   },
   backButton: {
     borderRadius: 8,
-    backgroundColor: "#27312d",
+    backgroundColor: "#1c1917",
     paddingHorizontal: 16,
     paddingVertical: 10
   },
@@ -404,7 +404,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 12,
     borderRadius: 8,
-    backgroundColor: "#27312d",
+    backgroundColor: "#1c1917",
     padding: 12,
     shadowColor: "#1f2937",
     shadowOffset: { width: 0, height: 8 },
@@ -423,12 +423,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#fff7df",
+    backgroundColor: "#a16207",
     paddingHorizontal: 12
   },
   finishButtonText: {
     fontSize: 14,
     fontWeight: "800",
-    color: "#27312d"
+    color: "#ffffff"
   }
 });
