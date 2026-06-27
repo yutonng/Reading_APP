@@ -58,7 +58,11 @@ export async function loadBooksWithStatus(): Promise<BooksLoadResult> {
     }
 
     return { books: normalizeBooksPayload(fallbackPayload), source: "fallback" };
-  } catch {
+  } catch (error) {
+    console.warn("Failed to load remote books", {
+      apiBaseUrl: getApiBaseUrl(),
+      error
+    });
     return { books: normalizeBooksPayload(fallbackPayload), source: "fallback" };
   }
 }

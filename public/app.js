@@ -707,14 +707,11 @@ function renderAdmin() {
       try {
         const response =
           publishMode === "replace"
-            ? await fetch(`/books/${encodeURIComponent(duplicate.id)}`, {
-                method: "PUT",
+            ? await fetch(`/drafts/${encodeURIComponent(draft.id)}`, {
+                method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                  title: draft.title,
-                  author: draft.author,
-                  summary: draft.summary,
-                  content: draft.content
+                  replaceBookId: duplicate.id
                 })
               })
             : publishMode === "discard"
@@ -736,16 +733,7 @@ function renderAdmin() {
           throw new Error(payload.error || "发布失败。");
         }
 
-        if (publishMode === "replace") {
-          const deleteResponse = await fetch(`/drafts/${encodeURIComponent(draft.id)}`, {
-            method: "DELETE"
-          });
-
-          if (!deleteResponse.ok) {
-            const payload = await deleteResponse.json().catch(() => ({}));
-            throw new Error(payload.error || "已替换已发布版本，但草稿删除失败。");
-          }
-        }
+        const savedBook = publishMode === "discard" ? null : await response.json().catch(() => null);
 
         if (adminDraft.id === draft.id && adminDraft.source === "draft") {
           adminDraft = emptyDraft();
@@ -757,6 +745,13 @@ function renderAdmin() {
               ? `已保留已发布版本，并删除待审核草稿。`
               : `${normalizeBookTitle(draft.title)}发布成功，用户侧现在可以阅读。`;
         await Promise.all([loadBooks(), loadDrafts()]);
+        drafts = drafts.filter((item) => item.id !== draft.id);
+        if (savedBook && publishMode === "new" && !books.some((book) => book.id === savedBook.id)) {
+          books = [savedBook, ...books];
+        }
+        if (savedBook && publishMode === "replace") {
+          books = books.map((book) => (book.id === savedBook.id ? savedBook : book));
+        }
         renderAdmin();
         showToast(publishMode === "discard" ? "草稿已删除。" : "发布成功。");
       } catch (error) {

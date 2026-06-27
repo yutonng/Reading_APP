@@ -17,6 +17,7 @@ const adminApiToken = process.env.ADMIN_API_TOKEN || "";
 export function sendJson(res, status, payload, headers = {}) {
   res.writeHead(status, {
     "Content-Type": "application/json; charset=utf-8",
+    "Cache-Control": "no-store, max-age=0",
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Admin-Api-Token",
@@ -27,6 +28,7 @@ export function sendJson(res, status, payload, headers = {}) {
 
 export function sendNoContent(res, status = 204, headers = {}) {
   res.writeHead(status, {
+    "Cache-Control": "no-store, max-age=0",
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Admin-Api-Token",
@@ -511,6 +513,7 @@ export async function handleApiRequest(req, res, pathname) {
       return true;
     }
 
+    const body = await readBody(req);
     const current = await readBooks();
     const draft = current.drafts.find((item) => item.id === draftId);
 
@@ -519,12 +522,22 @@ export async function handleApiRequest(req, res, pathname) {
       return true;
     }
 
-    const book = draftToBook(draft);
+    const replaceBookId = String(body.replaceBookId || "").trim();
+    const existingBook = replaceBookId ? current.books.find((book) => book.id === replaceBookId) : null;
+
+    if (replaceBookId && !existingBook) {
+      sendJson(res, 404, { error: "没有找到要替换的已发布书籍。" });
+      return true;
+    }
+
+    const book = draftToBook(draft, existingBook);
     await writeBooks({
-      books: [book, ...current.books],
+      books: replaceBookId
+        ? current.books.map((item) => (item.id === replaceBookId ? book : item))
+        : [book, ...current.books],
       drafts: current.drafts.filter((item) => item.id !== draftId)
     });
-    sendJson(res, 201, book);
+    sendJson(res, replaceBookId ? 200 : 201, book);
     return true;
   }
 

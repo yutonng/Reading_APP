@@ -10,7 +10,14 @@
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#f8f1e7"
+      "backgroundColor": "#f7f6f2"
+    },
+    "ios": {
+      "bundleIdentifier": "com.relaxreading.app",
+      "supportsTablet": false,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.relaxreading.app",
@@ -21,7 +28,7 @@
       "usesCleartextTraffic": true,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#f8f1e7"
+        "backgroundColor": "#f7f6f2"
       }
     },
     "web": {

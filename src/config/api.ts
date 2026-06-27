@@ -3,7 +3,8 @@ import { Platform } from "react-native";
 const fallbackApiUrl = "https://reading-app-sigma.vercel.app";
 
 export function getApiBaseUrl() {
-  const configuredUrl = process.env.EXPO_PUBLIC_API_URL;
+  const configuredUrl =
+    typeof process !== "undefined" ? process.env.EXPO_PUBLIC_API_URL : undefined;
 
   if (configuredUrl) {
     return configuredUrl.replace(/\/$/, "");
