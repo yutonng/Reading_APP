@@ -237,6 +237,42 @@ function getVisibleBooks() {
   );
 }
 
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function isSamePublishedBook(left, right) {
+  if (!left || !right) {
+    return false;
+  }
+
+  return (
+    left.id === right.id &&
+    left.title === right.title &&
+    left.author === right.author &&
+    left.summary === right.summary &&
+    left.updatedAt === right.updatedAt &&
+    left.sections?.length === right.sections?.length
+  );
+}
+
+async function waitForLibrarySync({ savedBook = null, draftId = "" }) {
+  for (let attempt = 0; attempt < 18; attempt += 1) {
+    await Promise.all([loadBooks(), loadDrafts()]);
+
+    const bookSynced = !savedBook || books.some((book) => isSamePublishedBook(book, savedBook));
+    const draftSynced = !draftId || !drafts.some((draft) => draft.id === draftId);
+
+    if (bookSynced && draftSynced) {
+      return true;
+    }
+
+    await delay(2000);
+  }
+
+  return false;
+}
+
 function showToast(message) {
   const toast = document.querySelector("#toast");
   if (!toast) {
@@ -744,13 +780,20 @@ function renderAdmin() {
             : publishMode === "discard"
               ? `已保留已发布版本，并删除待审核草稿。`
               : `${normalizeBookTitle(draft.title)}发布成功，用户侧现在可以阅读。`;
-        await Promise.all([loadBooks(), loadDrafts()]);
+        const messageNode = document.querySelector("#message");
+        if (messageNode) {
+          messageNode.textContent = `${adminMessage} 正在同步书库...`;
+        }
+        const synced = await waitForLibrarySync({ savedBook, draftId: draft.id });
         drafts = drafts.filter((item) => item.id !== draft.id);
         if (savedBook && publishMode === "new" && !books.some((book) => book.id === savedBook.id)) {
           books = [savedBook, ...books];
         }
         if (savedBook && publishMode === "replace") {
           books = books.map((book) => (book.id === savedBook.id ? savedBook : book));
+        }
+        if (!synced) {
+          adminMessage = `${adminMessage} 云端同步较慢，后台已先显示本次结果。`;
         }
         renderAdmin();
         showToast(publishMode === "discard" ? "草稿已删除。" : "发布成功。");
