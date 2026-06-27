@@ -153,6 +153,15 @@ function normalizeSoulSentence(value) {
   return `“${unwrapped || sentence}”`;
 }
 
+function getComparableBookTitle(value) {
+  return normalizeBookTitle(value).replace(/^《+/, "").replace(/》+$/, "").trim().toLowerCase();
+}
+
+function findPublishedDuplicate(draft) {
+  const title = getComparableBookTitle(draft.title);
+  return books.find((book) => getComparableBookTitle(book.title) === title);
+}
+
 function formToDraft(form) {
   const data = Object.fromEntries(new FormData(form).entries());
   return {
@@ -673,13 +682,48 @@ function renderAdmin() {
         return;
       }
 
+      const duplicate = findPublishedDuplicate(draft);
+      let publishMode = "new";
+
+      if (duplicate) {
+        const useDraft = confirm(
+          `已发布书库里已经有${normalizeBookTitle(draft.title)}。\n\n点击“确定”：保留待审核草稿，用它替换已发布版本。\n点击“取消”：保留已发布版本。`
+        );
+
+        if (useDraft) {
+          publishMode = "replace";
+        } else if (
+          confirm(`保留已发布版本，并删除这份待审核草稿${normalizeBookTitle(draft.title)}？\n\n点击“取消”则不做任何操作。`)
+        ) {
+          publishMode = "discard";
+        } else {
+          return;
+        }
+      }
+
       node.disabled = true;
-      node.textContent = "发布中";
+      node.textContent = publishMode === "discard" ? "处理中" : "发布中";
 
       try {
-        const response = await fetch(`/drafts/${encodeURIComponent(draft.id)}`, {
-          method: "POST"
-        });
+        const response =
+          publishMode === "replace"
+            ? await fetch(`/books/${encodeURIComponent(duplicate.id)}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  title: draft.title,
+                  author: draft.author,
+                  summary: draft.summary,
+                  content: draft.content
+                })
+              })
+            : publishMode === "discard"
+              ? await fetch(`/drafts/${encodeURIComponent(draft.id)}`, {
+                  method: "DELETE"
+                })
+              : await fetch(`/drafts/${encodeURIComponent(draft.id)}`, {
+                  method: "POST"
+                });
 
         if (!response.ok) {
           if (response.status === 401) {
@@ -692,13 +736,29 @@ function renderAdmin() {
           throw new Error(payload.error || "发布失败。");
         }
 
+        if (publishMode === "replace") {
+          const deleteResponse = await fetch(`/drafts/${encodeURIComponent(draft.id)}`, {
+            method: "DELETE"
+          });
+
+          if (!deleteResponse.ok) {
+            const payload = await deleteResponse.json().catch(() => ({}));
+            throw new Error(payload.error || "已替换已发布版本，但草稿删除失败。");
+          }
+        }
+
         if (adminDraft.id === draft.id && adminDraft.source === "draft") {
           adminDraft = emptyDraft();
         }
-        adminMessage = `${normalizeBookTitle(draft.title)}发布成功，用户侧现在可以阅读。`;
+        adminMessage =
+          publishMode === "replace"
+            ? `${normalizeBookTitle(draft.title)}已用待审核草稿替换。`
+            : publishMode === "discard"
+              ? `已保留已发布版本，并删除待审核草稿。`
+              : `${normalizeBookTitle(draft.title)}发布成功，用户侧现在可以阅读。`;
         await Promise.all([loadBooks(), loadDrafts()]);
         renderAdmin();
-        showToast("发布成功。");
+        showToast(publishMode === "discard" ? "草稿已删除。" : "发布成功。");
       } catch (error) {
         adminMessage = error.message || "发布失败。";
         renderAdmin();
@@ -713,26 +773,44 @@ function renderAdmin() {
         return;
       }
 
-      const response = await fetch(`/drafts/${encodeURIComponent(draft.id)}`, {
-        method: "DELETE"
-      });
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          isAdminAuthenticated = false;
-          renderLogin();
-          return;
-        }
-        alert("删除草稿失败。");
-        return;
-      }
-
+      const previousDrafts = drafts;
+      const previousAdminDraft = { ...adminDraft };
+      node.disabled = true;
+      node.textContent = "删除中";
+      drafts = drafts.filter((item) => item.id !== draft.id);
       if (adminDraft.id === draft.id && adminDraft.source === "draft") {
         adminDraft = emptyDraft();
       }
-      adminMessage = "草稿已删除。";
-      await loadDrafts();
+      adminMessage = "正在删除草稿...";
       renderAdmin();
+
+      try {
+        const response = await fetch(`/drafts/${encodeURIComponent(draft.id)}`, {
+          method: "DELETE"
+        });
+
+        if (!response.ok) {
+          if (response.status === 401) {
+            isAdminAuthenticated = false;
+            renderLogin();
+            return;
+          }
+
+          const payload = await response.json().catch(() => ({}));
+          throw new Error(payload.error || "删除草稿失败。");
+        }
+
+        adminMessage = "草稿已删除。";
+        await loadDrafts();
+        renderAdmin();
+        showToast("草稿已删除。");
+      } catch (error) {
+        drafts = previousDrafts;
+        adminDraft = previousAdminDraft;
+        adminMessage = error.message || "删除草稿失败。";
+        renderAdmin();
+        showToast(adminMessage);
+      }
     });
   });
   document.querySelectorAll("[data-edit-id]").forEach((node) => {
@@ -753,26 +831,44 @@ function renderAdmin() {
         return;
       }
 
-      const response = await fetch(`/books/${encodeURIComponent(book.id)}`, {
-        method: "DELETE"
-      });
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          isAdminAuthenticated = false;
-          renderLogin();
-          return;
-        }
-        alert("删除失败。");
-        return;
-      }
-
-      if (adminDraft.id === book.id) {
+      const previousBooks = books;
+      const previousAdminDraft = { ...adminDraft };
+      node.disabled = true;
+      node.textContent = "删除中";
+      books = books.filter((item) => item.id !== book.id);
+      if (adminDraft.id === book.id && adminDraft.source === "book") {
         adminDraft = emptyDraft();
       }
-      adminMessage = "已删除。";
-      await loadBooks();
+      adminMessage = `正在删除${normalizeBookTitle(book.title)}...`;
       renderAdmin();
+
+      try {
+        const response = await fetch(`/books/${encodeURIComponent(book.id)}`, {
+          method: "DELETE"
+        });
+
+        if (!response.ok) {
+          if (response.status === 401) {
+            isAdminAuthenticated = false;
+            renderLogin();
+            return;
+          }
+
+          const payload = await response.json().catch(() => ({}));
+          throw new Error(payload.error || "删除失败。");
+        }
+
+        adminMessage = `${normalizeBookTitle(book.title)}已删除。`;
+        await loadBooks();
+        renderAdmin();
+        showToast("已删除。");
+      } catch (error) {
+        books = previousBooks;
+        adminDraft = previousAdminDraft;
+        adminMessage = error.message || "删除失败。";
+        renderAdmin();
+        showToast(adminMessage);
+      }
     });
   });
   content.addEventListener("input", () => {
