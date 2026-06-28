@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Link, useFocusEffect, useRouter } from "expo-router";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -13,28 +13,33 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { findLastReadBook, getBookProgress, type ReadingProgressMap } from "@/core/reading-progress";
-import { loadBooksWithStatus } from "@/lib/books";
+import { loadBooksWithStatus, type BooksLoadResult } from "@/lib/books";
 import { loadReadingProgress } from "@/services/reading-progress";
 import type { Book } from "@/types/book";
 
 export default function BookListScreen() {
   const router = useRouter();
+  const hasLoadedOnceRef = useRef(false);
   const [books, setBooks] = useState<Book[]>([]);
   const [progress, setProgress] = useState<ReadingProgressMap>({});
   const [isLoading, setIsLoading] = useState(true);
-  const [isUsingFallbackBooks, setIsUsingFallbackBooks] = useState(false);
+  const [booksSource, setBooksSource] = useState<BooksLoadResult["source"]>("remote");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
   const refresh = useCallback(async () => {
-    setIsLoading(true);
+    if (!hasLoadedOnceRef.current) {
+      setIsLoading(true);
+    }
+
     const [booksResult, nextProgress] = await Promise.all([
       loadBooksWithStatus(),
       loadReadingProgress()
     ]);
     setBooks(booksResult.books);
-    setIsUsingFallbackBooks(booksResult.source === "fallback");
+    setBooksSource(booksResult.source);
     setProgress(nextProgress);
+    hasLoadedOnceRef.current = true;
     setIsLoading(false);
   }, []);
 
@@ -113,17 +118,20 @@ export default function BookListScreen() {
           keyExtractor={(item) => item.id}
           ListHeaderComponent={
             <>
-              {isUsingFallbackBooks ? (
+              {booksSource !== "remote" ? (
                 <View style={styles.offlineNotice}>
                   <Ionicons name="cloud-offline-outline" size={18} color="#7a4f1d" />
-                  <Text style={styles.offlineNoticeText}>内容更新失败，当前显示离线内容。</Text>
+                  <Text style={styles.offlineNoticeText}>
+                    {booksSource === "cache"
+                      ? "内容更新暂时失败，当前显示上次同步内容。"
+                      : "内容更新失败，当前显示离线内容。"}
+                  </Text>
                 </View>
               ) : null}
 
               {lastRead && !normalizedSearchQuery ? (
                 <View style={styles.continuePanel}>
                   <View style={styles.continueCopy}>
-                    <Text style={styles.eyebrow}>上次阅读</Text>
                     <Text style={styles.continueTitle}>{lastRead.book.title}</Text>
                     <Text style={styles.continueMeta}>
                       {lastRead.book.author} · {lastRead.progress.page + 1} /{" "}
@@ -138,7 +146,7 @@ export default function BookListScreen() {
                     asChild
                   >
                     <Pressable style={styles.continueButton}>
-                      <Text style={styles.continueButtonText}>继续</Text>
+                      <Text style={styles.continueButtonText}>继续阅读</Text>
                     </Pressable>
                   </Link>
                 </View>
@@ -187,15 +195,16 @@ function BookRow({
           <Text style={styles.bookTitle} numberOfLines={1}>
             {book.title}
           </Text>
-          <Text style={styles.bookMeta} numberOfLines={1}>
-            {book.author} · {book.sections.length} 页
-          </Text>
         </View>
+        <Text style={styles.bookMeta} numberOfLines={1}>
+          {book.author}
+        </Text>
         <Text style={styles.summary} numberOfLines={2}>
           {book.summary}
         </Text>
       </View>
       <Ionicons name="chevron-forward" size={20} color="#6b7280" />
+      <Text style={styles.pageCount}>{book.sections.length} 页</Text>
       <View style={styles.bookProgressTrack}>
         <View style={[styles.bookProgressFill, { width: `${progressPercent}%` }]} />
       </View>
@@ -289,14 +298,16 @@ const styles = StyleSheet.create({
     color: "#7a4f1d"
   },
   continuePanel: {
-    minHeight: 126,
+    minHeight: 104,
     flexDirection: "row",
     alignItems: "center",
     gap: 16,
     borderRadius: 8,
-    backgroundColor: "#1c1917",
+    borderWidth: 1,
+    borderColor: "#cfe7fb",
+    backgroundColor: "#eaf6ff",
     padding: 18,
-    shadowColor: "#1c1917",
+    shadowColor: "#16365f",
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.12,
     shadowRadius: 18,
@@ -306,27 +317,22 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: 6
   },
-  eyebrow: {
-    fontSize: 12,
-    fontWeight: "700",
-    color: "#d6ad60"
-  },
   continueTitle: {
     fontSize: 22,
     fontWeight: "800",
-    color: "#fffaf0"
+    color: "#16365f"
   },
   continueMeta: {
     fontSize: 14,
-    color: "#d6d3d1"
+    color: "#48698f"
   },
   continueButton: {
-    minWidth: 72,
+    minWidth: 92,
     height: 42,
     borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#a16207"
+    backgroundColor: "#16365f"
   },
   continueButtonText: {
     fontSize: 15,
@@ -358,15 +364,16 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     height: 3,
-    backgroundColor: "rgba(161, 98, 7, 0.12)"
+    backgroundColor: "rgba(22, 54, 95, 0.12)"
   },
   bookProgressFill: {
     height: "100%",
-    backgroundColor: "#a16207"
+    backgroundColor: "#16365f"
   },
   bookText: {
     flex: 1,
-    gap: 5
+    gap: 5,
+    paddingRight: 48
   },
   bookHeader: {
     flexDirection: "row",
@@ -380,10 +387,16 @@ const styles = StyleSheet.create({
     color: "#0c0a09"
   },
   bookMeta: {
-    maxWidth: "46%",
-    flexShrink: 0,
     fontSize: 13,
     color: "#5f5a54"
+  },
+  pageCount: {
+    position: "absolute",
+    right: 38,
+    bottom: 12,
+    fontSize: 12,
+    fontWeight: "700",
+    color: "#7a746b"
   },
   summary: {
     fontSize: 14,

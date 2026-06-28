@@ -13,7 +13,7 @@
       "backgroundColor": "#f7f6f2"
     },
     "ios": {
-      "bundleIdentifier": "com.relaxreading.app",
+      "bundleIdentifier": "com.relaxingread.nihaoya.app",
       "supportsTablet": false,
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false

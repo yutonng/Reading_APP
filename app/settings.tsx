@@ -1,11 +1,39 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Link } from "expo-router";
-import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useState } from "react";
+import { Linking, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { appInfo } from "@/config/app-info";
+import { createBookSuggestion } from "@/lib/books";
+
+const suggestionLimit = 100;
 
 export default function SettingsScreen() {
+  const [suggestion, setSuggestion] = useState("");
+  const [message, setMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const trimmedSuggestion = suggestion.trim();
+
+  async function submitSuggestion() {
+    if (!trimmedSuggestion || isSubmitting) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    setMessage("");
+
+    try {
+      await createBookSuggestion(trimmedSuggestion);
+      setSuggestion("");
+      setMessage("已提交，谢谢你的推荐。");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "提交失败，请稍后再试。");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
   return (
     <SafeAreaView style={styles.screen} edges={["top", "bottom"]}>
       <View style={styles.header}>
@@ -19,10 +47,39 @@ export default function SettingsScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.panel}>
-          <Text style={styles.appName}>{appInfo.name}</Text>
-          <Text style={styles.englishName}>{appInfo.englishName}</Text>
-          <Text style={styles.appDescription}>用 3-5 分钟读完一本书。</Text>
+        <View style={styles.suggestionPanel}>
+          <Text style={styles.sectionTitle}>想读的书</Text>
+          <TextInput
+            multiline
+            maxLength={suggestionLimit}
+            value={suggestion}
+            onChangeText={(value) => {
+              setSuggestion(value);
+              if (message) {
+                setMessage("");
+              }
+            }}
+            placeholder="告诉我你想读哪本书"
+            placeholderTextColor="#8a8074"
+            style={styles.suggestionInput}
+            textAlignVertical="top"
+          />
+          <View style={styles.suggestionFooter}>
+            <Text style={styles.counter}>
+              {suggestion.length} / {suggestionLimit}
+            </Text>
+            <Pressable
+              style={[
+                styles.submitButton,
+                (!trimmedSuggestion || isSubmitting) && styles.submitButtonDisabled
+              ]}
+              disabled={!trimmedSuggestion || isSubmitting}
+              onPress={submitSuggestion}
+            >
+              <Text style={styles.submitButtonText}>{isSubmitting ? "提交中" : "提交"}</Text>
+            </Pressable>
+          </View>
+          {message ? <Text style={styles.suggestionMessage}>{message}</Text> : null}
         </View>
 
         <View style={styles.list}>
@@ -81,27 +138,62 @@ const styles = StyleSheet.create({
     padding: 18,
     gap: 14
   },
-  panel: {
+  suggestionPanel: {
+    gap: 10,
     borderRadius: 8,
-    backgroundColor: "#1c1917",
-    padding: 18
+    borderWidth: 1,
+    borderColor: "#d8d2c8",
+    backgroundColor: "#ffffff",
+    padding: 14
   },
-  appName: {
-    fontSize: 24,
+  sectionTitle: {
+    fontSize: 16,
     fontWeight: "800",
-    color: "#fffaf0"
+    color: "#0c0a09"
   },
-  englishName: {
-    marginTop: 4,
-    fontSize: 14,
-    fontWeight: "700",
-    color: "#d6ad60"
-  },
-  appDescription: {
-    marginTop: 8,
+  suggestionInput: {
+    minHeight: 92,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#d8d2c8",
+    backgroundColor: "#fffaf0",
+    paddingHorizontal: 12,
+    paddingVertical: 10,
     fontSize: 15,
     lineHeight: 22,
-    color: "#d6d3d1"
+    color: "#0c0a09"
+  },
+  suggestionFooter: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12
+  },
+  counter: {
+    fontSize: 12,
+    color: "#7a746b"
+  },
+  submitButton: {
+    minWidth: 76,
+    height: 38,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 8,
+    backgroundColor: "#a16207",
+    paddingHorizontal: 14
+  },
+  submitButtonDisabled: {
+    opacity: 0.45
+  },
+  submitButtonText: {
+    fontSize: 14,
+    fontWeight: "800",
+    color: "#ffffff"
+  },
+  suggestionMessage: {
+    fontSize: 13,
+    lineHeight: 18,
+    color: "#5f5a54"
   },
   list: {
     borderRadius: 8,

@@ -207,7 +207,8 @@ async function writeBooksToBlob(payload) {
 function normalizeLibrary(payload) {
   return {
     books: Array.isArray(payload?.books) ? payload.books : [],
-    drafts: Array.isArray(payload?.drafts) ? payload.drafts : []
+    drafts: Array.isArray(payload?.drafts) ? payload.drafts : [],
+    suggestions: Array.isArray(payload?.suggestions) ? payload.suggestions : []
   };
 }
 
@@ -257,6 +258,11 @@ export function getDraftIdFromPath(pathname) {
   return match ? decodeURIComponent(match[1]) : null;
 }
 
+export function getSuggestionIdFromPath(pathname) {
+  const match = pathname.match(/^\/(?:api\/)?suggestions\/([^/]+)$/);
+  return match ? decodeURIComponent(match[1]) : null;
+}
+
 export function normalizeBookTitle(value) {
   const title = String(value || "").trim();
 
@@ -299,6 +305,20 @@ export function validateBookBody(body) {
   return { title, author, summary, content };
 }
 
+export function validateSuggestionBody(body) {
+  const content = String(body.content || "").trim();
+
+  if (!content) {
+    return { error: "请输入想看的书。" };
+  }
+
+  if (content.length > 100) {
+    return { error: "最多输入 100 个字。" };
+  }
+
+  return { content };
+}
+
 function createDraft(fields, id = null) {
   const now = new Date().toISOString();
 
@@ -310,6 +330,16 @@ function createDraft(fields, id = null) {
     content: fields.content,
     createdAt: now,
     updatedAt: now
+  };
+}
+
+function createSuggestion(fields) {
+  const now = new Date().toISOString();
+
+  return {
+    id: slugifyId("suggestion"),
+    content: fields.content,
+    createdAt: now
   };
 }
 
@@ -346,6 +376,16 @@ export async function handleApiRequest(req, res, pathname) {
 
     const current = await readBooks();
     sendJson(res, 200, { drafts: current.drafts });
+    return true;
+  }
+
+  if (req.method === "GET" && pathname === "/suggestions") {
+    if (!requireAdmin(req, res)) {
+      return true;
+    }
+
+    const current = await readBooks();
+    sendJson(res, 200, { suggestions: current.suggestions });
     return true;
   }
 
@@ -413,8 +453,24 @@ export async function handleApiRequest(req, res, pathname) {
     return true;
   }
 
+  if (req.method === "POST" && pathname === "/suggestions") {
+    const fields = validateSuggestionBody(await readBody(req));
+
+    if (fields.error) {
+      sendJson(res, 400, { error: fields.error });
+      return true;
+    }
+
+    const current = await readBooks();
+    const suggestion = createSuggestion(fields);
+    await writeBooks({ ...current, suggestions: [suggestion, ...current.suggestions] });
+    sendJson(res, 201, suggestion);
+    return true;
+  }
+
   const bookId = getBookIdFromPath(pathname);
   const draftId = getDraftIdFromPath(pathname);
+  const suggestionId = getSuggestionIdFromPath(pathname);
 
   if (bookId && req.method === "PUT") {
     if (!requireAdmin(req, res)) {
@@ -555,6 +611,24 @@ export async function handleApiRequest(req, res, pathname) {
     }
 
     await writeBooks({ ...current, drafts: nextDrafts });
+    sendJson(res, 200, { ok: true });
+    return true;
+  }
+
+  if (suggestionId && req.method === "DELETE") {
+    if (!requireAdmin(req, res)) {
+      return true;
+    }
+
+    const current = await readBooks();
+    const nextSuggestions = current.suggestions.filter((suggestion) => suggestion.id !== suggestionId);
+
+    if (nextSuggestions.length === current.suggestions.length) {
+      sendJson(res, 404, { error: "没有找到这条想读反馈。" });
+      return true;
+    }
+
+    await writeBooks({ ...current, suggestions: nextSuggestions });
     sendJson(res, 200, { ok: true });
     return true;
   }

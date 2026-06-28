@@ -8,6 +8,7 @@ const appInfo = {
 
 let books = [];
 let drafts = [];
+let suggestions = [];
 let route =
   window.location.pathname === "/admin"
     ? { name: "admin" }
@@ -43,6 +44,23 @@ async function loadDrafts() {
 
   const payload = await response.json();
   drafts = payload.drafts || [];
+}
+
+async function loadSuggestions() {
+  if (!isAdminAuthenticated) {
+    suggestions = [];
+    return;
+  }
+
+  const response = await fetch("/suggestions");
+
+  if (!response.ok) {
+    suggestions = [];
+    return;
+  }
+
+  const payload = await response.json();
+  suggestions = payload.suggestions || [];
 }
 
 async function loadSession() {
@@ -111,6 +129,19 @@ function countPages(content) {
     .split(/\n\s*\n/g)
     .map((item) => item.trim())
     .filter(Boolean).length;
+}
+
+function formatDateTime(value) {
+  if (!value) {
+    return "";
+  }
+
+  return new Date(value).toLocaleString("zh-CN", {
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
 }
 
 function parseDraftSections(content) {
@@ -479,7 +510,7 @@ function renderLogin() {
 
     isAdminAuthenticated = true;
     adminMessage = "";
-    await loadDrafts();
+    await Promise.all([loadDrafts(), loadSuggestions()]);
     renderAdmin();
   });
 }
@@ -615,6 +646,33 @@ function renderAdmin() {
                     )
                     .join("")
                 : `<p class="empty compact">还没有待审核草稿。</p>`
+            }
+          </div>
+        </div>
+        <div class="library-panel">
+          <div class="panel-title">
+            <h2>用户想读</h2>
+            <span>${suggestions.length} 条</span>
+          </div>
+          <div class="admin-list">
+            ${
+              suggestions.length
+                ? suggestions
+                    .map(
+                      (suggestion) => `
+                        <article class="admin-book">
+                          <div>
+                            <h3>${escapeHtml(suggestion.content)}</h3>
+                            <p>${escapeHtml(formatDateTime(suggestion.createdAt))}</p>
+                          </div>
+                          <div class="row-actions">
+                            <button class="small-btn danger" data-suggestion-delete-id="${suggestion.id}" type="button">删除</button>
+                          </div>
+                        </article>
+                      `
+                    )
+                    .join("")
+                : `<p class="empty compact">还没有用户提交。</p>`
             }
           </div>
         </div>
@@ -861,6 +919,46 @@ function renderAdmin() {
       }
     });
   });
+  document.querySelectorAll("[data-suggestion-delete-id]").forEach((node) => {
+    node.addEventListener("click", async () => {
+      const suggestionId = node.getAttribute("data-suggestion-delete-id");
+      const suggestion = suggestions.find((item) => item.id === suggestionId);
+      if (!suggestion || !confirm("删除这条用户想读反馈？")) {
+        return;
+      }
+
+      const previousSuggestions = suggestions;
+      node.disabled = true;
+      node.textContent = "删除中";
+      suggestions = suggestions.filter((item) => item.id !== suggestion.id);
+      renderAdmin();
+
+      try {
+        const response = await fetch(`/suggestions/${encodeURIComponent(suggestion.id)}`, {
+          method: "DELETE"
+        });
+
+        if (!response.ok) {
+          if (response.status === 401) {
+            isAdminAuthenticated = false;
+            renderLogin();
+            return;
+          }
+
+          const payload = await response.json().catch(() => ({}));
+          throw new Error(payload.error || "删除失败。");
+        }
+
+        await loadSuggestions();
+        renderAdmin();
+        showToast("已删除。");
+      } catch (error) {
+        suggestions = previousSuggestions;
+        renderAdmin();
+        showToast(error.message || "删除失败。");
+      }
+    });
+  });
   document.querySelectorAll("[data-delete-id]").forEach((node) => {
     node.addEventListener("click", async () => {
       const bookId = node.getAttribute("data-delete-id");
@@ -1019,7 +1117,7 @@ async function boot() {
   }
 
   await Promise.all([loadBooks(), loadSession()]);
-  await loadDrafts();
+  await Promise.all([loadDrafts(), loadSuggestions()]);
   render();
 }
 

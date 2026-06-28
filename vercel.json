@@ -17,6 +17,14 @@
       "destination": "/api/drafts/:id"
     },
     {
+      "source": "/suggestions",
+      "destination": "/api/suggestions"
+    },
+    {
+      "source": "/suggestions/:id",
+      "destination": "/api/suggestions/:id"
+    },
+    {
       "source": "/auth/session",
       "destination": "/api/auth/session"
     },

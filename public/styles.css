@@ -6,15 +6,15 @@
   color: #0c0a09;
   --paper: #f7f6f2;
   --surface: #ffffff;
-  --surface-strong: #1c1917;
+  --surface-strong: #eaf6ff;
   --ink: #0c0a09;
   --muted: #5f5a54;
   --quiet: #7c756d;
   --line: #d8d2c8;
   --line-soft: #ebe7df;
-  --accent: #a16207;
-  --accent-soft: #d9a441;
-  --accent-dark: #1c1917;
+  --accent: #16365f;
+  --accent-soft: #cfe7fb;
+  --accent-dark: #102a4a;
   --danger: #b42318;
 }
 
@@ -158,28 +158,28 @@ textarea {
   justify-content: space-between;
   gap: 16px;
   padding: 18px;
-  border: 1px solid #2b2723;
+  border: 1px solid #cfe7fb;
   border-radius: 8px;
   background: var(--surface-strong);
-  color: #fffaf0;
-  box-shadow: 0 16px 36px rgba(28, 25, 23, 0.14);
+  color: #16365f;
+  box-shadow: 0 16px 36px rgba(22, 54, 95, 0.12);
 }
 
 .continue h2 {
   margin: 4px 0 6px;
   font-size: 22px;
-  color: #fffaf0;
+  color: #16365f;
   font-family: "Songti SC", "STSong", "Noto Serif CJK SC", serif;
   font-weight: 700;
 }
 
 .continue p {
   margin: 0;
-  color: #d6d3d1;
+  color: #48698f;
 }
 
 .eyebrow {
-  color: #d6ad60;
+  color: #48698f;
   font-size: 13px;
   font-weight: 700;
 }

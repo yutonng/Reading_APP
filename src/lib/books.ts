@@ -1,4 +1,5 @@
 export {
+  createBookSuggestion,
   createBook as saveBook,
   deleteBook,
   loadBooks,
@@ -8,3 +9,4 @@ export {
   logoutAdmin,
   updateBook
 } from "@/services/books";
+export type { BooksLoadResult } from "@/services/books";

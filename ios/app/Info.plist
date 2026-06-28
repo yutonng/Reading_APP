@@ -28,7 +28,7 @@
         <key>CFBundleURLSchemes</key>
         <array>
           <string>readingapp</string>
-          <string>com.relaxreading.app</string>
+          <string>com.relaxingread.nihaoya.app</string>
         </array>
       </dict>
     </array>

@@ -15,3 +15,9 @@ export type AuthSession = {
 export type SaveBookInput = Pick<BookDraft, "title" | "author" | "summary" | "content">;
 
 export type SaveBookResult = Book;
+
+export type BookSuggestion = {
+  id: string;
+  content: string;
+  createdAt: string;
+};

@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { Link, useLocalSearchParams, useRouter } from "expo-router";
+import { Link, useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -18,7 +18,6 @@ import { loadReadingProgress, saveBookProgress } from "@/services/reading-progre
 import type { Book } from "@/types/book";
 
 export default function ReaderScreen() {
-  const router = useRouter();
   const { id, page } = useLocalSearchParams<{ id: string; page?: string }>();
   const [books, setBooks] = useState<Book[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -268,9 +267,6 @@ export default function ReaderScreen() {
       {isFinished ? (
         <View style={styles.finishPanel}>
           <Text style={styles.finishState}>已完结</Text>
-          <Pressable style={styles.finishButton} onPress={() => router.push("/")}>
-            <Text style={styles.finishButtonText}>{`继续阅读《${book.title}》`}</Text>
-          </Pressable>
         </View>
       ) : null}
     </SafeAreaView>
@@ -337,7 +333,7 @@ const styles = StyleSheet.create({
     color: "#7c756d"
   },
   progressLabelRaised: {
-    bottom: 92
+    bottom: 76
   },
   pageText: {
     fontSize: 24,
@@ -396,39 +392,15 @@ const styles = StyleSheet.create({
   },
   finishPanel: {
     position: "absolute",
-    left: 20,
-    right: 20,
-    bottom: 22,
+    alignSelf: "center",
+    bottom: 24,
     zIndex: 4,
-    flexDirection: "row",
     alignItems: "center",
-    gap: 12,
-    borderRadius: 8,
-    backgroundColor: "#1c1917",
-    padding: 12,
-    shadowColor: "#1f2937",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.14,
-    shadowRadius: 16,
-    elevation: 4
+    justifyContent: "center"
   },
   finishState: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: "800",
-    color: "#ffffff"
-  },
-  finishButton: {
-    flex: 1,
-    minHeight: 40,
-    borderRadius: 8,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#a16207",
-    paddingHorizontal: 12
-  },
-  finishButtonText: {
-    fontSize: 14,
-    fontWeight: "800",
-    color: "#ffffff"
+    color: "#7a746b"
   }
 });

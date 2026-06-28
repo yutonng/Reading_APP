@@ -17,7 +17,8 @@
     "web": "expo start --web --port 8081",
     "start": "expo start",
     "android": "expo run:android",
-    "ios": "expo run:ios"
+    "ios": "expo run:ios",
+    "ios:device:release": "NODE_ENV=production expo run:ios --device '于童的iPhone' --configuration Release"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
