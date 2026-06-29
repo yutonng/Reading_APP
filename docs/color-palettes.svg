@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
+  <rect width="1200" height="760" fill="#f8fafc"/>
+  <text x="60" y="76" fill="#102a4a" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="34" font-weight="800">Reading App Color Palettes</text>
+  <text x="60" y="112" fill="#60717f" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="18">Logo-aligned options for a calm, clean, literary product style</text>
+
+  <g transform="translate(60 160)">
+    <rect width="1080" height="150" rx="18" fill="#ffffff"/>
+    <text x="24" y="42" fill="#102a4a" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="24" font-weight="800">A. 清晨蓝</text>
+    <text x="24" y="72" fill="#48698f" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="15">最贴近当前 Logo，清爽、可信、App Store 感强</text>
+    <g transform="translate(300 24)">
+      <rect x="0" y="0" width="110" height="86" rx="14" fill="#f7fbff"/>
+      <rect x="124" y="0" width="110" height="86" rx="14" fill="#ffffff" stroke="#dceaf7"/>
+      <rect x="248" y="0" width="110" height="86" rx="14" fill="#eaf6ff"/>
+      <rect x="372" y="0" width="110" height="86" rx="14" fill="#102a4a"/>
+      <rect x="496" y="0" width="110" height="86" rx="14" fill="#48698f"/>
+      <rect x="620" y="0" width="110" height="86" rx="14" fill="#16365f"/>
+      <text x="0" y="112" fill="#60717f" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13">#f7fbff</text>
+      <text x="124" y="112" fill="#60717f" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13">#ffffff</text>
+      <text x="248" y="112" fill="#60717f" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13">#eaf6ff</text>
+      <text x="372" y="112" fill="#60717f" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13">#102a4a</text>
+      <text x="496" y="112" fill="#60717f" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13">#48698f</text>
+      <text x="620" y="112" fill="#60717f" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13">#16365f</text>
+    </g>
+  </g>
+
+  <g transform="translate(60 340)">
+    <rect width="1080" height="150" rx="18" fill="#ffffff"/>
+    <text x="24" y="42" fill="#1f2f3d" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="24" font-weight="800">B. 纸页蓝灰</text>
+    <text x="24" y="72" fill="#60717f" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="15">更克制、更成熟，和 Logo 同族但不会全屏发蓝</text>
+    <g transform="translate(300 24)">
+      <rect x="0" y="0" width="110" height="86" rx="14" fill="#f6f8fa"/>
+      <rect x="124" y="0" width="110" height="86" rx="14" fill="#ffffff" stroke="#d6e2ea"/>
+      <rect x="248" y="0" width="110" height="86" rx="14" fill="#edf4f8"/>
+      <rect x="372" y="0" width="110" height="86" rx="14" fill="#1f2f3d"/>
+      <rect x="496" y="0" width="110" height="86" rx="14" fill="#60717f"/>
+      <rect x="620" y="0" width="110" height="86" rx="14" fill="#24445c"/>
+      <text x="0" y="112" fill="#60717f" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13">#f6f8fa</text>
+      <text x="124" y="112" fill="#60717f" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13">#ffffff</text>
+      <text x="248" y="112" fill="#60717f" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13">#edf4f8</text>
+      <text x="372" y="112" fill="#60717f" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13">#1f2f3d</text>
+      <text x="496" y="112" fill="#60717f" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13">#60717f</text>
+      <text x="620" y="112" fill="#60717f" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13">#24445c</text>
+    </g>
+  </g>
+
+  <g transform="translate(60 520)">
+    <rect width="1080" height="150" rx="18" fill="#ffffff"/>
+    <text x="24" y="42" fill="#2d2a55" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="24" font-weight="800">C. 雾紫蓝</text>
+    <text x="24" y="72" fill="#68648a" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="15">更文艺、更温柔，有记忆点，但气质会更柔一点</text>
+    <g transform="translate(300 24)">
+      <rect x="0" y="0" width="110" height="86" rx="14" fill="#faf8ff"/>
+      <rect x="124" y="0" width="110" height="86" rx="14" fill="#ffffff" stroke="#ddd8f4"/>
+      <rect x="248" y="0" width="110" height="86" rx="14" fill="#f0edff"/>
+      <rect x="372" y="0" width="110" height="86" rx="14" fill="#2d2a55"/>
+      <rect x="496" y="0" width="110" height="86" rx="14" fill="#68648a"/>
+      <rect x="620" y="0" width="110" height="86" rx="14" fill="#3c3770"/>
+      <text x="0" y="112" fill="#68648a" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13">#faf8ff</text>
+      <text x="124" y="112" fill="#68648a" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13">#ffffff</text>
+      <text x="248" y="112" fill="#68648a" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13">#f0edff</text>
+      <text x="372" y="112" fill="#68648a" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13">#2d2a55</text>
+      <text x="496" y="112" fill="#68648a" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13">#68648a</text>
+      <text x="620" y="112" fill="#68648a" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13">#3c3770</text>
+    </g>
+  </g>
+</svg>

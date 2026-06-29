@@ -43,6 +43,10 @@
     {
       "source": "/privacy",
       "destination": "/privacy.html"
+    },
+    {
+      "source": "/support",
+      "destination": "/support.html"
     }
   ]
 }

@@ -1,9 +1,9 @@
 const app = document.querySelector("#app");
 const appInfo = {
-  name: "轻轻读",
-  englishName: "RelaxReading",
-  version: "0.1.0",
-  privacyUpdatedAt: "2026-06-05"
+  name: "轻读Relax Reading",
+  englishName: "Relax Reading",
+  version: "v1.0",
+  privacyUpdatedAt: "2026-06-27"
 };
 
 let books = [];
@@ -438,8 +438,14 @@ function renderPrivacy() {
         <h3>我们收集的信息</h3>
         <p>用户侧阅读 App 不要求注册账号。阅读进度保存在设备本地，用于继续阅读，不会主动上传到服务器。</p>
 
+        <h3>本地存储</h3>
+        <p>App 会在设备本地保存阅读进度和最近同步的书籍内容缓存，用于继续阅读、离线显示和提升加载稳定性。你卸载 App 后，这些本地数据通常会随 App 一起删除。</p>
+
         <h3>书籍内容</h3>
-        <p>App 会从云端接口获取书籍列表和正文内容。书籍内容由管理员通过后台维护，并存储在 Vercel Blob。</p>
+        <p>App 会从云端接口获取书籍列表和正文内容。书籍内容由管理员通过后台维护，并存储在云端服务中。</p>
+
+        <h3>想读反馈</h3>
+        <p>当你提交“想读的书”时，提交的文字内容会发送到云端后台，供管理员查看和处理。请不要在反馈中填写手机号、地址、身份证号等敏感个人信息。</p>
 
         <h3>后台管理</h3>
         <p>后台仅供管理员使用。后台登录使用账号和密码，并通过登录 Cookie 维持会话。</p>
@@ -448,7 +454,7 @@ function renderPrivacy() {
         <p>当你访问在线服务时，托管服务提供商可能会记录必要的请求日志，用于服务运行、安全排查和故障定位。</p>
 
         <h3>第三方服务</h3>
-        <p>本项目当前使用 Vercel 托管网页、接口和云端书籍存储。</p>
+        <p>本项目使用云服务托管网页、接口和书籍内容。相关服务可能会为了安全、运维和故障排查处理必要的请求信息。</p>
 
         <h3>联系我们</h3>
         <p>如需删除或更正书籍内容，请联系应用开发者。</p>
@@ -649,7 +655,7 @@ function renderAdmin() {
             }
           </div>
         </div>
-        <div class="library-panel">
+        <div class="library-panel suggestion-panel">
           <div class="panel-title">
             <h2>用户想读</h2>
             <span>${suggestions.length} 条</span>

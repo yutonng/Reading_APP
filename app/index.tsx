@@ -79,30 +79,30 @@ export default function BookListScreen() {
               }
             }}
           >
-            <Ionicons name={isSearchOpen ? "close" : "search-outline"} size={22} color="#1c1917" />
+            <Ionicons name={isSearchOpen ? "close" : "search-outline"} size={22} color="#1f2f3d" />
           </Pressable>
           <Link href="/settings" asChild>
             <Pressable style={styles.iconButton}>
-              <Ionicons name="settings-outline" size={22} color="#1c1917" />
+              <Ionicons name="settings-outline" size={22} color="#1f2f3d" />
             </Pressable>
           </Link>
         </View>
       </View>
       {isSearchOpen ? (
         <View style={styles.searchPanel}>
-          <Ionicons name="search-outline" size={18} color="#5f5a54" />
+          <Ionicons name="search-outline" size={18} color="#60717f" />
           <TextInput
             autoFocus
             value={searchQuery}
             onChangeText={setSearchQuery}
             placeholder="搜索书名、作者或灵魂句"
-            placeholderTextColor="#8a8074"
+            placeholderTextColor="#8a99a5"
             returnKeyType="search"
             style={styles.searchInput}
           />
           {searchQuery ? (
             <Pressable accessibilityLabel="清空搜索" style={styles.searchClear} onPress={() => setSearchQuery("")}>
-              <Ionicons name="close-circle" size={18} color="#8a8074" />
+              <Ionicons name="close-circle" size={18} color="#8a99a5" />
             </Pressable>
           ) : null}
         </View>
@@ -120,7 +120,7 @@ export default function BookListScreen() {
             <>
               {booksSource !== "remote" ? (
                 <View style={styles.offlineNotice}>
-                  <Ionicons name="cloud-offline-outline" size={18} color="#7a4f1d" />
+                  <Ionicons name="cloud-offline-outline" size={18} color="#60717f" />
                   <Text style={styles.offlineNoticeText}>
                     {booksSource === "cache"
                       ? "内容更新暂时失败，当前显示上次同步内容。"
@@ -203,7 +203,7 @@ function BookRow({
           {book.summary}
         </Text>
       </View>
-      <Ionicons name="chevron-forward" size={20} color="#6b7280" />
+      <Ionicons name="chevron-forward" size={20} color="#60717f" />
       <Text style={styles.pageCount}>{book.sections.length} 页</Text>
       <View style={styles.bookProgressTrack}>
         <View style={[styles.bookProgressFill, { width: `${progressPercent}%` }]} />
@@ -215,7 +215,7 @@ function BookRow({
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: "#f7f6f2"
+    backgroundColor: "#f6f8fa"
   },
   header: {
     height: 56,
@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#d8d2c8",
+    borderBottomColor: "#d6e2ea",
     backgroundColor: "#ffffff"
   },
   iconButton: {
@@ -245,7 +245,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#0c0a09"
+    color: "#1f2f3d"
   },
   searchPanel: {
     minHeight: 48,
@@ -254,7 +254,7 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingHorizontal: 18,
     borderBottomWidth: 1,
-    borderBottomColor: "#d8d2c8",
+    borderBottomColor: "#d6e2ea",
     backgroundColor: "#ffffff"
   },
   searchInput: {
@@ -262,7 +262,7 @@ const styles = StyleSheet.create({
     minHeight: 42,
     paddingVertical: 8,
     fontSize: 15,
-    color: "#0c0a09"
+    color: "#1f2f3d"
   },
   searchClear: {
     width: 32,
@@ -286,8 +286,8 @@ const styles = StyleSheet.create({
     gap: 8,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#ead5af",
-    backgroundColor: "#fff7e8",
+    borderColor: "#d6e2ea",
+    backgroundColor: "#edf4f8",
     paddingHorizontal: 12,
     paddingVertical: 10
   },
@@ -295,7 +295,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 13,
     lineHeight: 18,
-    color: "#7a4f1d"
+    color: "#60717f"
   },
   continuePanel: {
     minHeight: 104,
@@ -304,10 +304,10 @@ const styles = StyleSheet.create({
     gap: 16,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#cfe7fb",
-    backgroundColor: "#eaf6ff",
+    borderColor: "#d6e2ea",
+    backgroundColor: "#edf4f8",
     padding: 18,
-    shadowColor: "#16365f",
+    shadowColor: "#24445c",
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.12,
     shadowRadius: 18,
@@ -320,11 +320,11 @@ const styles = StyleSheet.create({
   continueTitle: {
     fontSize: 22,
     fontWeight: "800",
-    color: "#16365f"
+    color: "#1f2f3d"
   },
   continueMeta: {
     fontSize: 14,
-    color: "#48698f"
+    color: "#60717f"
   },
   continueButton: {
     minWidth: 92,
@@ -332,7 +332,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#16365f"
+    backgroundColor: "#24445c"
   },
   continueButtonText: {
     fontSize: 15,
@@ -347,11 +347,11 @@ const styles = StyleSheet.create({
     gap: 12,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#d8d2c8",
+    borderColor: "#d6e2ea",
     backgroundColor: "#ffffff",
     paddingHorizontal: 14,
     paddingVertical: 12,
-    shadowColor: "#1c1917",
+    shadowColor: "#24445c",
     shadowOffset: { width: 0, height: 5 },
     shadowOpacity: 0.045,
     shadowRadius: 12,
@@ -363,12 +363,12 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    height: 3,
-    backgroundColor: "rgba(22, 54, 95, 0.12)"
+    height: 1,
+    backgroundColor: "rgba(36, 68, 92, 0.08)"
   },
   bookProgressFill: {
     height: "100%",
-    backgroundColor: "#16365f"
+    backgroundColor: "#24445c"
   },
   bookText: {
     flex: 1,
@@ -384,29 +384,28 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 18,
     fontWeight: "700",
-    color: "#0c0a09"
+    color: "#1f2f3d"
   },
   bookMeta: {
     fontSize: 13,
-    color: "#5f5a54"
+    color: "#60717f"
   },
   pageCount: {
     position: "absolute",
     right: 38,
     bottom: 12,
     fontSize: 12,
-    fontWeight: "700",
-    color: "#7a746b"
+    color: "#60717f"
   },
   summary: {
     fontSize: 14,
     lineHeight: 20,
-    color: "#3f3a34"
+    color: "#384a5a"
   },
   empty: {
     paddingVertical: 48,
     textAlign: "center",
     fontSize: 15,
-    color: "#7a746b"
+    color: "#60717f"
   }
 });

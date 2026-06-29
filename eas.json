@@ -12,8 +12,14 @@
       }
     },
     "production": {
+      "ios": {
+        "simulator": false
+      },
       "android": {
         "buildType": "app-bundle"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://reading.nihaoya.cloud"
       }
     }
   }

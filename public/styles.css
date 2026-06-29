@@ -2,19 +2,19 @@
   color-scheme: light;
   font-family:
     -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
-  background: #f7f6f2;
-  color: #0c0a09;
-  --paper: #f7f6f2;
+  background: #f6f8fa;
+  color: #1f2f3d;
+  --paper: #f6f8fa;
   --surface: #ffffff;
-  --surface-strong: #eaf6ff;
-  --ink: #0c0a09;
-  --muted: #5f5a54;
-  --quiet: #7c756d;
-  --line: #d8d2c8;
-  --line-soft: #ebe7df;
-  --accent: #16365f;
-  --accent-soft: #cfe7fb;
-  --accent-dark: #102a4a;
+  --surface-strong: #edf4f8;
+  --ink: #1f2f3d;
+  --muted: #60717f;
+  --quiet: #8a99a5;
+  --line: #d6e2ea;
+  --line-soft: #e4edf3;
+  --accent: #24445c;
+  --accent-soft: #dfeef5;
+  --accent-dark: #1f2f3d;
   --danger: #b42318;
 }
 
@@ -37,7 +37,7 @@ textarea {
 .shell {
   min-height: 100vh;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(247, 246, 242, 0) 180px),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(246, 248, 250, 0) 180px),
     var(--paper);
 }
 
@@ -49,7 +49,7 @@ textarea {
   gap: 12px;
   padding: 0 16px;
   border-bottom: 1px solid var(--line);
-  background: rgba(255, 253, 248, 0.92);
+  background: rgba(255, 255, 255, 0.92);
   color: var(--ink);
   backdrop-filter: blur(14px);
 }
@@ -86,7 +86,7 @@ textarea {
 }
 
 .icon-btn:hover {
-  background: rgba(28, 25, 23, 0.06);
+  background: rgba(36, 68, 92, 0.06);
 }
 
 .icon-btn svg,
@@ -110,7 +110,7 @@ textarea {
   gap: 8px;
   padding: 0 18px;
   border-bottom: 1px solid var(--line);
-  background: rgba(255, 253, 248, 0.94);
+  background: rgba(255, 255, 255, 0.94);
 }
 
 .search-panel > svg {
@@ -138,7 +138,7 @@ textarea {
 }
 
 .search-clear:hover {
-  background: rgba(28, 25, 23, 0.06);
+  background: rgba(36, 68, 92, 0.06);
 }
 
 .list {
@@ -158,28 +158,28 @@ textarea {
   justify-content: space-between;
   gap: 16px;
   padding: 18px;
-  border: 1px solid #cfe7fb;
+  border: 1px solid #d6e2ea;
   border-radius: 8px;
   background: var(--surface-strong);
-  color: #16365f;
-  box-shadow: 0 16px 36px rgba(22, 54, 95, 0.12);
+  color: #1f2f3d;
+  box-shadow: 0 16px 36px rgba(36, 68, 92, 0.12);
 }
 
 .continue h2 {
   margin: 4px 0 6px;
   font-size: 22px;
-  color: #16365f;
+  color: #1f2f3d;
   font-family: "Songti SC", "STSong", "Noto Serif CJK SC", serif;
   font-weight: 700;
 }
 
 .continue p {
   margin: 0;
-  color: #48698f;
+  color: #60717f;
 }
 
 .eyebrow {
-  color: #48698f;
+  color: #60717f;
   font-size: 13px;
   font-weight: 700;
 }
@@ -209,7 +209,7 @@ textarea {
   text-align: left;
   cursor: pointer;
   overflow: hidden;
-  box-shadow: 0 1px 0 rgba(12, 10, 9, 0.03), 0 10px 22px rgba(28, 25, 23, 0.035);
+  box-shadow: 0 1px 0 rgba(31, 47, 61, 0.03), 0 10px 22px rgba(36, 68, 92, 0.035);
   transition:
     border-color 160ms ease,
     box-shadow 160ms ease,
@@ -217,8 +217,8 @@ textarea {
 }
 
 .book:hover {
-  border-color: #c8beb2;
-  box-shadow: 0 1px 0 rgba(12, 10, 9, 0.04), 0 14px 30px rgba(28, 25, 23, 0.06);
+  border-color: #c4d4df;
+  box-shadow: 0 1px 0 rgba(31, 47, 61, 0.04), 0 14px 30px rgba(36, 68, 92, 0.06);
   transform: translateY(-1px);
 }
 
@@ -232,7 +232,7 @@ textarea {
 
 .book p {
   margin: 0;
-  color: #3f4a44;
+  color: #384a5a;
   line-height: 1.5;
 }
 
@@ -247,14 +247,14 @@ textarea {
   left: 0;
   right: 0;
   bottom: 0;
-  height: 3px;
-  background: rgba(161, 98, 7, 0.12);
+  height: 1px;
+  background: rgba(36, 68, 92, 0.08);
 }
 
 .book-progress span {
   display: block;
   height: 100%;
-  background: linear-gradient(90deg, var(--accent), var(--accent-soft));
+  background: var(--accent);
 }
 
 .reader {
@@ -262,14 +262,14 @@ textarea {
   display: grid;
   grid-template-rows: 56px 3px 1fr;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(250, 250, 249, 0) 220px),
-    #fafaf9;
+    linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(246, 248, 250, 0) 220px),
+    #f6f8fa;
 }
 
 .progress-track {
   width: 100%;
   height: 3px;
-  background: #e7e5e4;
+  background: #d6e2ea;
 }
 
 .progress-track span {
@@ -336,7 +336,7 @@ textarea {
   padding: 14px;
   border-radius: 8px;
   border: 1px solid var(--line);
-  background: rgba(255, 253, 248, 0.94);
+  background: rgba(255, 255, 255, 0.94);
   z-index: 4;
 }
 
@@ -368,7 +368,7 @@ textarea {
   justify-content: center;
   padding: 0 14px;
   border-radius: 8px;
-  background: rgba(36, 49, 47, 0.92);
+  background: rgba(31, 47, 61, 0.92);
   color: #ffffff;
   font-size: 14px;
   opacity: 0;
@@ -398,7 +398,7 @@ textarea {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--surface);
-  box-shadow: 0 12px 30px rgba(64, 54, 42, 0.06);
+  box-shadow: 0 12px 30px rgba(36, 68, 92, 0.06);
 }
 
 .manager {
@@ -421,7 +421,31 @@ textarea {
   border-radius: 8px;
   background: var(--surface);
   overflow: hidden;
-  box-shadow: 0 1px 0 rgba(32, 39, 36, 0.04);
+  box-shadow: 0 1px 0 rgba(36, 68, 92, 0.04);
+}
+
+.library-panel.suggestion-panel {
+  border-color: #d6e2ea;
+  background: #edf4f8;
+  box-shadow: 0 16px 36px rgba(36, 68, 92, 0.08);
+}
+
+.library-panel.suggestion-panel .panel-title {
+  border-bottom-color: #d6e2ea;
+}
+
+.library-panel.suggestion-panel .panel-title h2,
+.library-panel.suggestion-panel .admin-book h3 {
+  color: #1f2f3d;
+}
+
+.library-panel.suggestion-panel .panel-title span,
+.library-panel.suggestion-panel .admin-book p {
+  color: #60717f;
+}
+
+.library-panel.suggestion-panel .admin-book {
+  border-bottom-color: #d6e2ea;
 }
 
 .panel-title {
@@ -479,7 +503,7 @@ textarea {
 .small-btn {
   min-height: 34px;
   flex: 1 1 72px;
-  border: 1px solid #d8cec1;
+  border: 1px solid #d6e2ea;
   border-radius: 8px;
   background: var(--surface);
   color: var(--ink);
@@ -487,7 +511,7 @@ textarea {
 }
 
 .small-btn:hover {
-  background: #faf7f0;
+  background: #f3f7fa;
 }
 
 .small-btn:disabled {
@@ -525,9 +549,9 @@ label {
 input,
 textarea {
   width: 100%;
-  border: 1px solid #d8cec1;
+  border: 1px solid #d6e2ea;
   border-radius: 8px;
-  background: #fffefa;
+  background: #ffffff;
   padding: 10px 12px;
   color: var(--ink);
   outline: none;
@@ -536,7 +560,7 @@ textarea {
 input:focus,
 textarea:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(161, 98, 7, 0.14);
+  box-shadow: 0 0 0 3px rgba(36, 68, 92, 0.14);
 }
 
 textarea {
@@ -557,7 +581,7 @@ textarea {
 
 .secondary-action {
   height: 46px;
-  border: 1px solid #d8cec1;
+  border: 1px solid #d6e2ea;
   border-radius: 8px;
   background: var(--surface);
   color: var(--ink);
@@ -566,7 +590,7 @@ textarea {
 }
 
 .secondary-action:hover {
-  background: #faf7f0;
+  background: #f3f7fa;
 }
 
 .message {
@@ -584,7 +608,7 @@ textarea {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--surface);
-  box-shadow: 0 12px 30px rgba(64, 54, 42, 0.05);
+  box-shadow: 0 12px 30px rgba(36, 68, 92, 0.05);
 }
 
 .policy h2 {

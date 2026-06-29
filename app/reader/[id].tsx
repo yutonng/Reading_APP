@@ -1,9 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Link, useLocalSearchParams } from "expo-router";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
-  Animated,
   PanResponder,
   Pressable,
   StyleSheet,
@@ -22,9 +21,6 @@ export default function ReaderScreen() {
   const [books, setBooks] = useState<Book[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [pageIndex, setPageIndex] = useState(0);
-  const [turnDirection, setTurnDirection] = useState<"next" | "previous">("next");
-  const turnOpacity = useRef(new Animated.Value(0)).current;
-  const turnTranslateX = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     Promise.all([loadBooks(), loadReadingProgress()]).then(([items, progress]) => {
@@ -51,152 +47,47 @@ export default function ReaderScreen() {
     }
   }, [book, safePageIndex, total]);
 
-  const playTurnOverlay = useCallback(
-    (direction: "next" | "previous") => {
-      setTurnDirection(direction);
-      turnOpacity.stopAnimation();
-      turnTranslateX.stopAnimation();
-      turnOpacity.setValue(0);
-      turnTranslateX.setValue(direction === "next" ? 72 : -72);
-
-      Animated.parallel([
-        Animated.sequence([
-          Animated.timing(turnOpacity, {
-            toValue: 0.72,
-            duration: 80,
-            useNativeDriver: true
-          }),
-          Animated.timing(turnOpacity, {
-            toValue: 0,
-            duration: 180,
-            useNativeDriver: true
-          })
-        ]),
-        Animated.timing(turnTranslateX, {
-          toValue: direction === "next" ? -32 : 32,
-          duration: 260,
-          useNativeDriver: true
-        })
-      ]).start();
-    },
-    [turnOpacity, turnTranslateX]
-  );
-
-  const followTurnOverlay = useCallback(
-    (dx: number) => {
-      const direction = dx < 0 ? "next" : "previous";
-      const distance = Math.min(Math.abs(dx), 180);
-      setTurnDirection(direction);
-      turnOpacity.stopAnimation();
-      turnTranslateX.stopAnimation();
-      turnOpacity.setValue(Math.min(distance / 170, 0.72));
-      turnTranslateX.setValue(direction === "next" ? 72 - distance * 0.7 : -72 + distance * 0.7);
-    },
-    [turnOpacity, turnTranslateX]
-  );
-
-  const finishTurnOverlay = useCallback(
-    (direction: "next" | "previous") => {
-      Animated.parallel([
-        Animated.timing(turnOpacity, {
-          toValue: 0,
-          duration: 140,
-          useNativeDriver: true
-        }),
-        Animated.timing(turnTranslateX, {
-          toValue: direction === "next" ? -32 : 32,
-          duration: 140,
-          useNativeDriver: true
-        })
-      ]).start();
-    },
-    [turnOpacity, turnTranslateX]
-  );
-
-  const cancelTurnOverlay = useCallback(
-    (direction: "next" | "previous") => {
-      Animated.parallel([
-        Animated.timing(turnOpacity, {
-          toValue: 0,
-          duration: 120,
-          useNativeDriver: true
-        }),
-        Animated.timing(turnTranslateX, {
-          toValue: direction === "next" ? 72 : -72,
-          duration: 120,
-          useNativeDriver: true
-        })
-      ]).start();
-    },
-    [turnOpacity, turnTranslateX]
-  );
-
   const changePage = useCallback(
-    (direction: "next" | "previous", animation: "tap" | "drag") => {
+    (direction: "next" | "previous") => {
       setPageIndex((value) => {
-        const nextPage = clampPage(value + (direction === "next" ? 1 : -1), total);
-        if (nextPage !== value) {
-          if (animation === "tap") {
-            playTurnOverlay(direction);
-          } else {
-            finishTurnOverlay(direction);
-          }
-        } else if (animation === "drag") {
-          cancelTurnOverlay(direction);
-        }
-        return nextPage;
+        return clampPage(value + (direction === "next" ? 1 : -1), total);
       });
     },
-    [cancelTurnOverlay, finishTurnOverlay, playTurnOverlay, total]
+    [total]
   );
 
   const goPrevious = useCallback(() => {
-    changePage("previous", "tap");
+    changePage("previous");
   }, [changePage]);
 
   const goNext = useCallback(() => {
-    changePage("next", "tap");
+    changePage("next");
   }, [changePage]);
 
   const swipePrevious = useCallback(() => {
-    changePage("previous", "drag");
+    changePage("previous");
   }, [changePage]);
 
   const swipeNext = useCallback(() => {
-    changePage("next", "drag");
+    changePage("next");
   }, [changePage]);
-
-  const cancelSwipe = useCallback(
-    (dx: number) => {
-      cancelTurnOverlay(dx < 0 ? "next" : "previous");
-    },
-    [cancelTurnOverlay]
-  );
 
   const panResponder = useMemo(
     () =>
       PanResponder.create({
         onMoveShouldSetPanResponderCapture: (_, gesture) =>
-          Math.abs(gesture.dx) > 18 && Math.abs(gesture.dx) > Math.abs(gesture.dy) * 1.4,
+          Math.abs(gesture.dx) > 10 && Math.abs(gesture.dx) > Math.abs(gesture.dy) * 1.25,
         onMoveShouldSetPanResponder: (_, gesture) =>
-          Math.abs(gesture.dx) > 18 && Math.abs(gesture.dx) > Math.abs(gesture.dy) * 1.4,
-        onPanResponderMove: (_, gesture) => {
-          followTurnOverlay(gesture.dx);
-        },
+          Math.abs(gesture.dx) > 10 && Math.abs(gesture.dx) > Math.abs(gesture.dy) * 1.25,
         onPanResponderRelease: (_, gesture) => {
-          if (gesture.dx <= -48) {
+          if (gesture.dx <= -28) {
             swipeNext();
-          } else if (gesture.dx >= 48) {
+          } else if (gesture.dx >= 28) {
             swipePrevious();
-          } else {
-            cancelSwipe(gesture.dx);
           }
-        },
-        onPanResponderTerminate: (_, gesture) => {
-          cancelSwipe(gesture.dx);
         }
       }),
-    [cancelSwipe, followTurnOverlay, swipeNext, swipePrevious]
+    [swipeNext, swipePrevious]
   );
 
   if (isLoading) {
@@ -229,7 +120,7 @@ export default function ReaderScreen() {
       <View style={styles.topBar}>
         <Link href="/" asChild>
           <Pressable style={styles.iconButton}>
-            <Ionicons name="chevron-back" size={24} color="#27312d" />
+            <Ionicons name="chevron-back" size={24} color="#1f2f3d" />
           </Pressable>
         </Link>
         <Text style={styles.bookTitle} numberOfLines={1}>
@@ -247,17 +138,6 @@ export default function ReaderScreen() {
           <Text style={styles.pageText}>{section.text}</Text>
         </View>
         <Pressable style={styles.tapZoneRight} onPress={goNext} />
-        <Animated.View
-          pointerEvents="none"
-          style={[
-            styles.turnOverlay,
-            turnDirection === "next" ? styles.turnOverlayNext : styles.turnOverlayPrevious,
-            {
-              opacity: turnOpacity,
-              transform: [{ translateX: turnTranslateX }]
-            }
-          ]}
-        />
       </View>
 
       <Text style={[styles.progressLabel, isFinished && styles.progressLabelRaised]}>
@@ -276,7 +156,7 @@ export default function ReaderScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: "#fafaf9"
+    backgroundColor: "#f6f8fa"
   },
   center: {
     flex: 1,
@@ -302,15 +182,15 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 20,
     fontWeight: "700",
-    color: "#0c0a09"
+    color: "#1f2f3d"
   },
   progressTrack: {
     height: 3,
-    backgroundColor: "#e7e5e4"
+    backgroundColor: "#d6e2ea"
   },
   progressFill: {
     height: 3,
-    backgroundColor: "#a16207"
+    backgroundColor: "#24445c"
   },
   readerArea: {
     flex: 1
@@ -330,7 +210,7 @@ const styles = StyleSheet.create({
     zIndex: 3,
     textAlign: "center",
     fontSize: 12,
-    color: "#7c756d"
+    color: "#60717f"
   },
   progressLabelRaised: {
     bottom: 76
@@ -338,7 +218,7 @@ const styles = StyleSheet.create({
   pageText: {
     fontSize: 24,
     lineHeight: 39,
-    color: "#0c0a09"
+    color: "#1f2f3d"
   },
   tapZoneLeft: {
     position: "absolute",
@@ -356,32 +236,14 @@ const styles = StyleSheet.create({
     width: "50%",
     zIndex: 2
   },
-  turnOverlay: {
-    position: "absolute",
-    top: 0,
-    bottom: 0,
-    width: "64%",
-    zIndex: 5,
-    backgroundColor: "rgba(28, 25, 23, 0.055)"
-  },
-  turnOverlayNext: {
-    right: 0,
-    borderLeftWidth: 1,
-    borderLeftColor: "rgba(28, 25, 23, 0.08)"
-  },
-  turnOverlayPrevious: {
-    left: 0,
-    borderRightWidth: 1,
-    borderRightColor: "rgba(28, 25, 23, 0.08)"
-  },
   emptyTitle: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#0c0a09"
+    color: "#1f2f3d"
   },
   backButton: {
     borderRadius: 8,
-    backgroundColor: "#1c1917",
+    backgroundColor: "#24445c",
     paddingHorizontal: 16,
     paddingVertical: 10
   },
@@ -401,6 +263,6 @@ const styles = StyleSheet.create({
   finishState: {
     fontSize: 13,
     fontWeight: "800",
-    color: "#7a746b"
+    color: "#60717f"
   }
 });

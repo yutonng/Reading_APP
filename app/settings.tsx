@@ -39,7 +39,7 @@ export default function SettingsScreen() {
       <View style={styles.header}>
         <Link href="/" asChild>
           <Pressable style={styles.iconButton}>
-            <Ionicons name="chevron-back" size={24} color="#1c1917" />
+            <Ionicons name="chevron-back" size={24} color="#1f2f3d" />
           </Pressable>
         </Link>
         <Text style={styles.title}>关于</Text>
@@ -60,7 +60,7 @@ export default function SettingsScreen() {
               }
             }}
             placeholder="告诉我你想读哪本书"
-            placeholderTextColor="#8a8074"
+            placeholderTextColor="#8a99a5"
             style={styles.suggestionInput}
             textAlignVertical="top"
           />
@@ -98,9 +98,9 @@ export default function SettingsScreen() {
           >
             <View style={styles.rowText}>
               <Text style={styles.rowTitle}>隐私政策</Text>
-              <Text style={styles.rowMeta}>{appInfo.privacyPolicyUrl}</Text>
+              <Text style={styles.rowMeta}>查看轻轻读如何处理数据</Text>
             </View>
-            <Ionicons name="open-outline" size={20} color="#5f5a54" />
+            <Ionicons name="open-outline" size={20} color="#60717f" />
           </Pressable>
         </View>
       </ScrollView>
@@ -111,7 +111,7 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: "#f7f6f2"
+    backgroundColor: "#f6f8fa"
   },
   header: {
     height: 56,
@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#d8d2c8",
+    borderBottomColor: "#d6e2ea",
     backgroundColor: "#ffffff"
   },
   iconButton: {
@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#0c0a09"
+    color: "#1f2f3d"
   },
   content: {
     padding: 18,
@@ -142,26 +142,26 @@ const styles = StyleSheet.create({
     gap: 10,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#d8d2c8",
-    backgroundColor: "#ffffff",
+    borderColor: "#d6e2ea",
+    backgroundColor: "#edf4f8",
     padding: 14
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: "800",
-    color: "#0c0a09"
+    color: "#1f2f3d"
   },
   suggestionInput: {
     minHeight: 92,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#d8d2c8",
-    backgroundColor: "#fffaf0",
+    borderColor: "#d6e2ea",
+    backgroundColor: "#f8fcff",
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 15,
     lineHeight: 22,
-    color: "#0c0a09"
+    color: "#1f2f3d"
   },
   suggestionFooter: {
     flexDirection: "row",
@@ -171,7 +171,7 @@ const styles = StyleSheet.create({
   },
   counter: {
     fontSize: 12,
-    color: "#7a746b"
+    color: "#60717f"
   },
   submitButton: {
     minWidth: 76,
@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 8,
-    backgroundColor: "#a16207",
+    backgroundColor: "#24445c",
     paddingHorizontal: 14
   },
   submitButtonDisabled: {
@@ -193,12 +193,12 @@ const styles = StyleSheet.create({
   suggestionMessage: {
     fontSize: 13,
     lineHeight: 18,
-    color: "#5f5a54"
+    color: "#60717f"
   },
   list: {
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#d8d2c8",
+    borderColor: "#d6e2ea",
     backgroundColor: "#ffffff",
     overflow: "hidden"
   },
@@ -210,7 +210,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "#ebe7df"
+    borderBottomColor: "#e4edf3"
   },
   rowText: {
     flex: 1,
@@ -219,11 +219,11 @@ const styles = StyleSheet.create({
   rowTitle: {
     fontSize: 16,
     fontWeight: "700",
-    color: "#0c0a09"
+    color: "#1f2f3d"
   },
   rowMeta: {
     fontSize: 13,
     lineHeight: 18,
-    color: "#5f5a54"
+    color: "#60717f"
   }
 });
